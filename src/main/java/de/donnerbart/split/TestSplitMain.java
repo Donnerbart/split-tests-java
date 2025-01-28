@@ -7,8 +7,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class TestSplitMain {
 
@@ -31,7 +31,7 @@ public class TestSplitMain {
         final var excludeGlob = arguments.excludeGlob != null ? arguments.excludeGlob : "**/*Abstract*";
         final var workingDirectory = arguments.workingDirectory != null ?
                 arguments.workingDirectory.toAbsolutePath() :
-                new File("").toPath().toAbsolutePath();
+                Paths.get(System.getProperty("user.dir")).toAbsolutePath();
         if (!Files.exists(workingDirectory)) {
             System.out.println("Working directory does not exist: " + workingDirectory);
             System.exit(1);
