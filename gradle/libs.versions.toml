@@ -1,0 +1,24 @@
+[versions]
+assertj = "3.27.3"
+equalsVerifier = "3.17.5"
+jackson = "2.18.2"
+jcommander = "1.82"
+jetbrains-annotations = "26.0.1"
+junit = "5.10.0"
+logback = "1.5.16"
+systemStubs = "2.1.7"
+
+[libraries]
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+equalsVerifier = { module = "nl.jqno.equalsverifier:equalsverifier", version.ref = "equalsVerifier" }
+jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
+jcommander = { module = "com.beust:jcommander", version.ref = "jcommander" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+systemStubs-core = { module = "uk.org.webcompere:system-stubs-core", version.ref = "systemStubs" }
+systemStubs = { module = "uk.org.webcompere:system-stubs-jupiter", version.ref = "systemStubs" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version = "8.3.5" }
