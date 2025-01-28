@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Setup Java
+        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@0bdd871935719febd78681f197cd39af5b6e16a6 # v4
+
+      - name: Build JAR
+        run: ./gradlew shadowJar
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./build/libs/split-tests-java.jar
+          asset_name: split-tests-java-${{ github.event.release.name }}.jar
+          asset_content_type: application/java-archive

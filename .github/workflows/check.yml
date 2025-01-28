@@ -1,0 +1,38 @@
+name: CI Check
+
+on:
+  push:
+    branches: ["**"]
+
+concurrency:
+  group: unit-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout Split Tests Java
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@0bdd871935719febd78681f197cd39af5b6e16a6 # v4
+
+      - name: Gradle check
+        run: ./gradlew check
+
+      - name: Publish test report
+        uses: mikepenz/action-junit-report@ee6b445351cd81e2f73a16a0e52d598aeac2197f # v5
+        if: always()
+        with:
+          annotate_only: true
+          detailed_summary: true
+          job_name: unit-test-report
+          report_paths: '**/build/test-results/test/TEST-*.xml'
