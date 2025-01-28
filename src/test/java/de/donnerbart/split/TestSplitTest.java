@@ -44,7 +44,8 @@ class TestSplitTest {
                 .resolve("example");
         Files.createDirectories(projectFolder);
         copyResourceToTarget(projectFolder, "tests/FastTest.java", "FastTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/NoTimingTest.java", "NoTimingTest.java", PERMISSIONS);
+        copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
+        copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/SlowTest.java", "SlowTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/SlowestTest.java", "SlowestTest.java", PERMISSIONS);
 
@@ -64,72 +65,150 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withoutJUnit_firstSplit() throws Exception {
-        final var testSplit = new TestSplit(0,
-                2,
+    void run_withoutJUnit_withOneSplit() throws Exception {
+        final var split = new TestSplit(0,
+                1,
                 "**/example-project/**/*Test.java",
                 "**/example-project/**/*Abstract*.java",
                 null,
                 tmp,
                 true,
                 exitCode::set);
-        testSplit.run();
+        split.run();
 
-        assertThat(systemOut.getLines()).hasSize(1);
-        assertThat(systemOut.getText()).isEqualTo(
-                "de.donnerbart.example.SlowestTest de.donnerbart.example.NoTimingTest");
+        assertThat(systemOut.getLines()).singleElement().isEqualTo( //
+                "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest de.donnerbart.example.SlowTest de.donnerbart.example.SlowestTest");
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void run_withoutJUnit_secondSplit() throws Exception {
-        final var testSplit = new TestSplit(1,
-                2,
-                "**/example-project/**/*Test.java",
-                "**/example-project/**/*Abstract*.java",
-                null,
-                tmp,
-                true,
-                exitCode::set);
-        testSplit.run();
+    void run_withoutJUnit_withTwoSplits() throws Exception {
+        for (int index = 0; index <= 1; index++) {
+            final var split = new TestSplit(index,
+                    2,
+                    "**/example-project/**/*Test.java",
+                    "**/example-project/**/*Abstract*.java",
+                    null,
+                    tmp,
+                    true,
+                    exitCode::set);
+            split.run();
+            // add a new line to separate the captured output
+            System.out.println();
+        }
 
-        assertThat(systemOut.getLines()).hasSize(1);
-        assertThat(systemOut.getText()).isEqualTo("de.donnerbart.example.SlowTest de.donnerbart.example.FastTest");
+        assertThat(systemOut.getLines()).hasSize(2).containsSequence( //
+                "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingTwoTest de.donnerbart.example.SlowestTest",
+                "de.donnerbart.example.NoTimingOneTest de.donnerbart.example.SlowTest");
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void run_withJUnit_firstSplit() throws Exception {
-        final var testSplit = new TestSplit(0,
-                2,
+    void run_withoutJUnit_withThreeSplits() throws Exception {
+        for (int index = 0; index <= 2; index++) {
+            final var split = new TestSplit(index,
+                    3,
+                    "**/example-project/**/*Test.java",
+                    "**/example-project/**/*Abstract*.java",
+                    null,
+                    tmp,
+                    true,
+                    exitCode::set);
+            split.run();
+            // add a new line to separate the captured output
+            System.out.println();
+        }
+
+        assertThat(systemOut.getLines()).hasSize(3).containsSequence( //
+                "de.donnerbart.example.FastTest de.donnerbart.example.SlowTest",
+                "de.donnerbart.example.NoTimingOneTest de.donnerbart.example.SlowestTest",
+                "de.donnerbart.example.NoTimingTwoTest");
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
+    void run_withJUnit_withOneSplit() throws Exception {
+        final var split = new TestSplit(0,
+                1,
                 "**/example-project/**/*Test.java",
                 "**/example-project/**/*Abstract*.java",
                 "**/junit-reports/*.xml",
                 tmp,
                 true,
                 exitCode::set);
-        testSplit.run();
+        split.run();
 
-        assertThat(systemOut.getLines()).hasSize(1);
-        assertThat(systemOut.getText()).isEqualTo("de.donnerbart.example.SlowestTest");
+        assertThat(systemOut.getLines()).singleElement().isEqualTo( //
+                "de.donnerbart.example.SlowestTest de.donnerbart.example.SlowTest de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void run_withJUnit_secondSplit() throws Exception {
-        final var testSplit = new TestSplit(1,
-                2,
-                "**/example-project/**/*Test.java",
-                "**/example-project/**/*Abstract*.java",
-                "**/junit-reports/*.xml",
-                tmp,
-                true,
-                exitCode::set);
-        testSplit.run();
+    void run_withJUnit_withTwoSplits() throws Exception {
+        for (int index = 0; index <= 1; index++) {
+            final var split = new TestSplit(index,
+                    2,
+                    "**/example-project/**/*Test.java",
+                    "**/example-project/**/*Abstract*.java",
+                    "**/junit-reports/*.xml",
+                    tmp,
+                    true,
+                    exitCode::set);
+            split.run();
+            // add a new line to separate the captured output
+            System.out.println();
+        }
 
-        assertThat(systemOut.getLines()).hasSize(1);
-        assertThat(systemOut.getText()).isEqualTo(
-                "de.donnerbart.example.SlowTest de.donnerbart.example.FastTest de.donnerbart.example.NoTimingTest");
+        assertThat(systemOut.getLines()).hasSize(2).containsSequence( //
+                "de.donnerbart.example.SlowestTest",
+                "de.donnerbart.example.SlowTest de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
+    void run_withJUnit_withThreeSplits() throws Exception {
+        for (int index = 0; index <= 2; index++) {
+            final var split = new TestSplit(index,
+                    3,
+                    "**/example-project/**/*Test.java",
+                    "**/example-project/**/*Abstract*.java",
+                    "**/junit-reports/*.xml",
+                    tmp,
+                    true,
+                    exitCode::set);
+            split.run();
+            // add a new line to separate the captured output
+            System.out.println();
+        }
+
+        assertThat(systemOut.getLines()).hasSize(3).containsSequence( //
+                "de.donnerbart.example.SlowestTest",
+                "de.donnerbart.example.SlowTest",
+                "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
+    void run_withJUnit_withFourSplits() throws Exception {
+        for (int index = 0; index <= 3; index++) {
+            final var split = new TestSplit(index,
+                    4,
+                    "**/example-project/**/*Test.java",
+                    "**/example-project/**/*Abstract*.java",
+                    "**/junit-reports/*.xml",
+                    tmp,
+                    true,
+                    exitCode::set);
+            split.run();
+            // add a new line to separate the captured output
+            System.out.println();
+        }
+
+        assertThat(systemOut.getLines()).hasSize(4).containsSequence( //
+                "de.donnerbart.example.SlowestTest",
+                "de.donnerbart.example.SlowTest",
+                "de.donnerbart.example.FastTest",
+                "de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
         assertThat(exitCode).hasNullValue();
     }
 

@@ -9,7 +9,11 @@ record TestCase(@NotNull String name, double time) implements Comparable<TestCas
 
     @Override
     public int compareTo(final @NotNull TestCase o) {
-        return Double.compare(time, o.time);
+        final var compareTime = Double.compare(time, o.time);
+        if (compareTime != 0) {
+            return compareTime;
+        }
+        return o.name.compareTo(name);
     }
 
     @Override
