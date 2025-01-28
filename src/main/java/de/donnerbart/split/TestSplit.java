@@ -64,7 +64,12 @@ public class TestSplit {
         LOG.info("Working directory: {}", workingDirectory);
         final var testPaths = getPaths(workingDirectory, glob, excludeGlob);
         final var classNames = fileToClassName(testPaths, exitCodeConsumer);
-        LOG.info("Found {} test classes", classNames.size());
+        if (classNames.isEmpty()) {
+            LOG.error("Found no test classes");
+            exitCodeConsumer.accept(1);
+        } else {
+            LOG.info("Found {} test classes", classNames.size());
+        }
 
         final var testCases = new HashSet<TestCase>();
         if (junitGlob != null) {

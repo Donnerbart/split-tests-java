@@ -134,6 +134,24 @@ class TestSplitTest {
     }
 
     @Test
+    void run_noTests() throws Exception {
+        final var projectFolder = tmp.resolve("no-tests-project").resolve("src").resolve("main").resolve("java");
+
+        final var testSplit = new TestSplit(0,
+                1,
+                "**/no-tests-project/**/*Test.java",
+                null,
+                null,
+                projectFolder,
+                true,
+                exitCode::set);
+        testSplit.run();
+
+        assertThat(systemOut.getLinesNormalized()).isEmpty();
+        assertThat(exitCode).hasValue(1);
+    }
+
+    @Test
     void run_noPackage() throws Exception {
         final var projectFolder = tmp.resolve("no-package-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder, "tests/NoPackageTest.java", "NoPackageTest.java", PERMISSIONS);
