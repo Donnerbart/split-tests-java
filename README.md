@@ -1,3 +1,6 @@
+[![CI Check](https://github.com/Donnerbart/split-tests-java/actions/workflows/check.yml/badge.svg)](https://github.com/Donnerbart/split-tests-java/actions/workflows/check.yml)
+[![Release](https://github.com/Donnerbart/split-tests-java/actions/workflows/release.yml/badge.svg)](https://github.com/Donnerbart/split-tests-java/actions/workflows/release.yml)
+
 # Split Tests Java
 
 Divides a test suite into groups with equal execution time, based on prior test timings.
