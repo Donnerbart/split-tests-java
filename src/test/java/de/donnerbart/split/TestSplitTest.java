@@ -43,6 +43,7 @@ class TestSplitTest {
                 .resolve("donnerbart")
                 .resolve("example");
         Files.createDirectories(projectFolder);
+        copyResourceToTarget(projectFolder, "tests/DisabledTest.java", "DisabledTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/FastTest.java", "FastTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
@@ -255,8 +256,7 @@ class TestSplitTest {
                 exitCode::set);
         testSplit.run();
 
-        assertThat(systemOut.getLines()).singleElement()
-                .isEqualTo("de.donnerbart.example.ThirdPartyLibraryTest");
+        assertThat(systemOut.getLines()).singleElement().isEqualTo("de.donnerbart.example.ThirdPartyLibraryTest");
         assertThat(exitCode).hasNullValue();
     }
 

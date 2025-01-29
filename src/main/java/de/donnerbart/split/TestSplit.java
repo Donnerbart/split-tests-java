@@ -185,11 +185,15 @@ public class TestSplit {
         for (final var testPath : testPaths) {
             try {
                 final var compilationUnit = javaParser.parse(testPath).getResult().orElseThrow();
-                final var className = compilationUnit.findFirst(ClassOrInterfaceDeclaration.class)
-                        .map(ClassOrInterfaceDeclaration::getFullyQualifiedName)
-                        .orElseThrow()
-                        .orElseThrow();
-                classNames.add(className);
+                final var declaration = compilationUnit.findFirst(ClassOrInterfaceDeclaration.class).orElseThrow();
+                final var className = declaration.getFullyQualifiedName().orElseThrow();
+                if (declaration.getAnnotations()
+                        .stream()
+                        .anyMatch(annotationExpr -> "Disabled".equals(annotationExpr.getNameAsString()))) {
+                    LOG.info("Skipping disabled test {}", className);
+                } else {
+                    classNames.add(className);
+                }
             } catch (final Exception e) {
                 LOG.error("Failed to parse test class: {}", testPath, e);
                 exitCodeConsumer.accept(1);
