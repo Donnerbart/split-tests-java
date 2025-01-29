@@ -52,6 +52,10 @@ class TestSplitTest {
 
         final var reportFolder = tmp.resolve("junit-reports");
         copyResourceToTarget(reportFolder,
+                "reports/TEST-de.donnerbart.example.DeletedTest.xml",
+                "TEST-de.donnerbart.example.DeletedTest.xml",
+                PERMISSIONS);
+        copyResourceToTarget(reportFolder,
                 "reports/TEST-de.donnerbart.example.FastTest.xml",
                 "TEST-de.donnerbart.example.FastTest.xml",
                 PERMISSIONS);
