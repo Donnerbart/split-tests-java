@@ -3,6 +3,7 @@ package de.donnerbart.split;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -26,6 +27,9 @@ import static de.donnerbart.split.Util.formatIndex;
 import static de.donnerbart.split.Util.formatTime;
 
 public class TestSplit {
+
+    private static final @NotNull Set<String> SKIP_TEST_ANNOTATIONS =
+            Set.of("org.junit.jupiter.api.Disabled", "Disabled", "org.junit.Ignore", "Ignore");
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(TestSplit.class);
 
@@ -189,7 +193,8 @@ public class TestSplit {
                 final var className = declaration.getFullyQualifiedName().orElseThrow();
                 if (declaration.getAnnotations()
                         .stream()
-                        .anyMatch(annotationExpr -> "Disabled".equals(annotationExpr.getNameAsString()))) {
+                        .map(AnnotationExpr::getNameAsString)
+                        .anyMatch(SKIP_TEST_ANNOTATIONS::contains)) {
                     LOG.info("Skipping disabled test {}", className);
                 } else {
                     classNames.add(className);
