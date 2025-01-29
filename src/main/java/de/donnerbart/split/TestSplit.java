@@ -1,6 +1,8 @@
 package de.donnerbart.split;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -18,16 +20,12 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static de.donnerbart.split.Util.formatIndex;
 import static de.donnerbart.split.Util.formatTime;
 
 public class TestSplit {
-
-    private static final @NotNull Pattern PACKAGE_PATTERN = Pattern.compile("package\\s+([\\S.]+?)\\s*;");
-    private static final @NotNull Pattern CLASS_NAME_PATTERN = Pattern.compile("class\\s+(\\S+?)\\s+");
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(TestSplit.class);
 
@@ -181,26 +179,21 @@ public class TestSplit {
 
     private static @NotNull Set<String> fileToClassName(
             final @NotNull Set<Path> testPaths,
-            final @NotNull Consumer<Integer> exitCodeConsumer)
-            throws Exception {
+            final @NotNull Consumer<Integer> exitCodeConsumer) {
+        final var javaParser = new JavaParser();
         final var classNames = new HashSet<String>();
         for (final var testPath : testPaths) {
-            final var testClassContent = Files.readString(testPath);
-            final var packagematcher = PACKAGE_PATTERN.matcher(testClassContent);
-            if (!packagematcher.find()) {
-                LOG.error("Found no package in file '{}'", testPath);
+            try {
+                final var compilationUnit = javaParser.parse(testPath).getResult().orElseThrow();
+                final var className = compilationUnit.findFirst(ClassOrInterfaceDeclaration.class)
+                        .map(ClassOrInterfaceDeclaration::getFullyQualifiedName)
+                        .orElseThrow()
+                        .orElseThrow();
+                classNames.add(className);
+            } catch (final Exception e) {
+                LOG.error("Failed to parse test class: {}", testPath, e);
                 exitCodeConsumer.accept(1);
-                continue;
             }
-            final var packageName = packagematcher.group(1);
-            final var classNameMatcher = CLASS_NAME_PATTERN.matcher(testClassContent);
-            if (!classNameMatcher.find()) {
-                LOG.error("Found no class name in file '{}'", testPath);
-                exitCodeConsumer.accept(1);
-                continue;
-            }
-            final var className = classNameMatcher.group(1);
-            classNames.add(packageName + "." + className);
         }
         return classNames;
     }

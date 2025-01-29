@@ -25,8 +25,9 @@ repositories {
 
 dependencies {
     compileOnly(libs.jetbrains.annotations)
-    implementation(libs.jcommander)
     implementation(libs.jackson.dataformat.xml)
+    implementation(libs.java.parser)
+    implementation(libs.jcommander)
     implementation(libs.logback.classic)
 }
 

@@ -213,12 +213,17 @@ class TestSplitTest {
     }
 
     @Test
-    void run_noTests() throws Exception {
-        final var projectFolder = tmp.resolve("no-tests-project").resolve("src").resolve("main").resolve("java");
+    void run_whitespaceClassDefinition() throws Exception {
+        final var projectFolder =
+                tmp.resolve("multiline-class-definition-project").resolve("src").resolve("main").resolve("java");
+        copyResourceToTarget(projectFolder,
+                "tests/WhitespaceClassDefinitionTest.java",
+                "WhitespaceClassDefinitionTest.java",
+                PERMISSIONS);
 
         final var testSplit = new TestSplit(0,
                 1,
-                "**/no-tests-project/**/*Test.java",
+                "**/multiline-class-definition-project/**/*Test.java",
                 null,
                 null,
                 projectFolder,
@@ -226,8 +231,33 @@ class TestSplitTest {
                 exitCode::set);
         testSplit.run();
 
-        assertThat(systemOut.getLinesNormalized()).isEmpty();
-        assertThat(exitCode).hasValue(1);
+        assertThat(systemOut.getLines()).singleElement()
+                .isEqualTo("de.donnerbart.example.WhitespaceClassDefinitionTest");
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
+    void run_thirdPartyLibrary() throws Exception {
+        final var projectFolder =
+                tmp.resolve("third-party-library-project").resolve("src").resolve("main").resolve("java");
+        copyResourceToTarget(projectFolder,
+                "tests/ThirdPartyLibraryTest.java",
+                "ThirdPartyLibraryTest.java",
+                PERMISSIONS);
+
+        final var testSplit = new TestSplit(0,
+                1,
+                "**/third-party-library-project/**/*Test.java",
+                null,
+                null,
+                projectFolder,
+                true,
+                exitCode::set);
+        testSplit.run();
+
+        assertThat(systemOut.getLines()).singleElement()
+                .isEqualTo("de.donnerbart.example.ThirdPartyLibraryTest");
+        assertThat(exitCode).hasNullValue();
     }
 
     @Test
@@ -238,6 +268,24 @@ class TestSplitTest {
         final var testSplit = new TestSplit(0,
                 1,
                 "**/no-package-project/**/*Test.java",
+                null,
+                null,
+                projectFolder,
+                true,
+                exitCode::set);
+        testSplit.run();
+
+        assertThat(systemOut.getLines()).singleElement().isEqualTo("NoPackageTest");
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
+    void run_noTests() throws Exception {
+        final var projectFolder = tmp.resolve("no-tests-project").resolve("src").resolve("main").resolve("java");
+
+        final var testSplit = new TestSplit(0,
+                1,
+                "**/no-tests-project/**/*Test.java",
                 null,
                 null,
                 projectFolder,
@@ -266,28 +314,5 @@ class TestSplitTest {
 
         assertThat(systemOut.getLinesNormalized()).isEmpty();
         assertThat(exitCode).hasValue(1);
-    }
-
-    @Test
-    void run_whitespaceClassDefinition() throws Exception {
-        final var projectFolder =
-                tmp.resolve("multiline-class-definition-project").resolve("src").resolve("main").resolve("java");
-        copyResourceToTarget(projectFolder, "tests/WhitespaceClassDefinitionTest.java",
-                "WhitespaceClassDefinitionTest.java",
-                PERMISSIONS);
-
-        final var testSplit = new TestSplit(0,
-                1,
-                "**/multiline-class-definition-project/**/*Test.java",
-                null,
-                null,
-                projectFolder,
-                true,
-                exitCode::set);
-        testSplit.run();
-
-        assertThat(systemOut.getLines()).singleElement()
-                .isEqualTo("de.donnerbart.example.WhitespaceClassDefinitionTest");
-        assertThat(exitCode).hasNullValue();
     }
 }
