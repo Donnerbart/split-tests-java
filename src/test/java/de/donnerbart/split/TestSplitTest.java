@@ -267,4 +267,27 @@ class TestSplitTest {
         assertThat(systemOut.getLinesNormalized()).isEmpty();
         assertThat(exitCode).hasValue(1);
     }
+
+    @Test
+    void run_whitespaceClassDefinition() throws Exception {
+        final var projectFolder =
+                tmp.resolve("multiline-class-definition-project").resolve("src").resolve("main").resolve("java");
+        copyResourceToTarget(projectFolder, "tests/WhitespaceClassDefinitionTest.java",
+                "WhitespaceClassDefinitionTest.java",
+                PERMISSIONS);
+
+        final var testSplit = new TestSplit(0,
+                1,
+                "**/multiline-class-definition-project/**/*Test.java",
+                null,
+                null,
+                projectFolder,
+                true,
+                exitCode::set);
+        testSplit.run();
+
+        assertThat(systemOut.getLines()).singleElement()
+                .isEqualTo("de.donnerbart.example.WhitespaceClassDefinitionTest");
+        assertThat(exitCode).hasNullValue();
+    }
 }

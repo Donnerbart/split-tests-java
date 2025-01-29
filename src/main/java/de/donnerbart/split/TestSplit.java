@@ -26,8 +26,8 @@ import static de.donnerbart.split.Util.formatTime;
 
 public class TestSplit {
 
-    private static final @NotNull Pattern PACKAGE_PATTERN = Pattern.compile("package (.*);");
-    private static final @NotNull Pattern CLASS_NAME_PATTERN = Pattern.compile("class (\\w+) ");
+    private static final @NotNull Pattern PACKAGE_PATTERN = Pattern.compile("package\\s+([\\S.]+?)\\s*;");
+    private static final @NotNull Pattern CLASS_NAME_PATTERN = Pattern.compile("class\\s+(\\S+?)\\s+");
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(TestSplit.class);
 
