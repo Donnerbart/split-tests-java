@@ -62,6 +62,13 @@ public class TestSplit {
     public void run() throws Exception {
         LOG.info("Split index {} (total: {})", splitIndex, splitTotal);
         LOG.info("Working directory: {}", workingDirectory);
+        LOG.info("Glob: {}", glob);
+        if (excludeGlob != null) {
+            LOG.info("Exclude glob: {}", excludeGlob);
+        }
+        if (junitGlob != null) {
+            LOG.info("JUnit glob: {}", junitGlob);
+        }
         final var testPaths = getPaths(workingDirectory, glob, excludeGlob);
         final var classNames = fileToClassName(testPaths, exitCodeConsumer);
         if (classNames.isEmpty()) {
@@ -112,7 +119,7 @@ public class TestSplit {
         testCases.stream()
                 .sorted(Comparator.reverseOrder())
                 .forEach(testCase -> splits.stream().sorted().findFirst().ifPresent(split -> {
-                    LOG.debug("Splitting test {} to split #{}", testCase.name(), split.index());
+                    LOG.debug("Adding test {} to split #{}", testCase.name(), split.index());
                     split.add(testCase);
                 }));
 
