@@ -83,24 +83,26 @@ public class TestSplit {
             // analyze JUnit reports
             final var junitPaths = getPaths(workingDirectory, junitGlob, null);
             LOG.info("Found {} JUnit report files", junitPaths.size());
-            var slowestTest = new TestCase("", 0d);
-            final var xmlMapper = new XmlMapper();
-            for (final var junitPath : junitPaths) {
-                final var testSuite = xmlMapper.readValue(junitPath.toFile(), TestSuite.class);
-                final var testCase = new TestCase(testSuite.getName(), testSuite.getTime());
-                if (classNames.contains(testCase.name())) {
-                    if (testCases.add(testCase)) {
-                        LOG.debug("Adding test {} [{}]", testCase.name(), formatTime(testCase.time()));
+            if (!junitPaths.isEmpty()) {
+                var slowestTest = new TestCase("", 0d);
+                final var xmlMapper = new XmlMapper();
+                for (final var junitPath : junitPaths) {
+                    final var testSuite = xmlMapper.readValue(junitPath.toFile(), TestSuite.class);
+                    final var testCase = new TestCase(testSuite.getName(), testSuite.getTime());
+                    if (classNames.contains(testCase.name())) {
+                        if (testCases.add(testCase)) {
+                            LOG.debug("Adding test {} [{}]", testCase.name(), formatTime(testCase.time()));
+                        }
+                    } else {
+                        LOG.info("Skipping test {} from JUnit report", testCase.name());
                     }
-                } else {
-                    LOG.info("Skipping test {} from JUnit report", testCase.name());
+                    if (testCase.time() > slowestTest.time()) {
+                        slowestTest = testCase;
+                    }
                 }
-                if (testCase.time() > slowestTest.time()) {
-                    slowestTest = testCase;
-                }
+                LOG.debug("Found {} recorded test classes with time information", testCases.size());
+                LOG.debug("Slowest test class: {} ({})", slowestTest.name(), formatTime(slowestTest.time()));
             }
-            LOG.debug("Found {} recorded test classes with time information", testCases.size());
-            LOG.debug("Slowest test class: {} ({})", slowestTest.name(), formatTime(slowestTest.time()));
         }
         // add tests without timing records
         classNames.forEach(className -> {
