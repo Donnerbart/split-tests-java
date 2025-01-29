@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "de.donnerbart"
-version = "0.1.5"
+version = "0.1.6"
 
 application {
     mainClass = "de.donnerbart.split.TestSplitMain"
