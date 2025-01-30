@@ -31,7 +31,7 @@ public class TestSplitMain {
                 Objects.requireNonNullElse(arguments.workingDirectory, Paths.get(System.getProperty("user.dir")))
                         .toAbsolutePath()
                         .normalize();
-        if (!validate(arguments, workingDirectory)) {
+        if (!validateArguments(arguments, workingDirectory)) {
             System.exit(1);
         }
         final var testSplit = new TestSplit(arguments.splitIndex,
@@ -46,7 +46,7 @@ public class TestSplitMain {
     }
 
     @VisibleForTesting
-    static boolean validate(final @NotNull Arguments arguments, final @NotNull Path workingDirectory) {
+    static boolean validateArguments(final @NotNull Arguments arguments, final @NotNull Path workingDirectory) {
         if (arguments.splitTotal < 1) {
             System.out.println("--split-total must be greater than 0");
             return false;

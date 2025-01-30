@@ -20,30 +20,30 @@ class TestSplitMainTest {
     @Test
     void validateArguments() {
         jCommander.parse("-g", "**/*Test.java", "-t", "1", "-i", "0");
-        assertThat(TestSplitMain.validate(arguments, tmp)).isTrue();
+        assertThat(TestSplitMain.validateArguments(arguments, tmp)).isTrue();
     }
 
     @Test
     void validateArguments_withZeroSplitTotal() {
         jCommander.parse("-g", "**/*Test.java", "-t", "0", "-i", "0");
-        assertThat(TestSplitMain.validate(arguments, tmp)).isFalse();
+        assertThat(TestSplitMain.validateArguments(arguments, tmp)).isFalse();
     }
 
     @Test
     void validateArguments_withNegativeSplitTotal() {
         jCommander.parse("-g", "**/*Test.java", "-t", "-1", "-i", "0");
-        assertThat(TestSplitMain.validate(arguments, tmp)).isFalse();
+        assertThat(TestSplitMain.validateArguments(arguments, tmp)).isFalse();
     }
 
     @Test
     void validateArguments_withTooSmallSplitIndex() {
         jCommander.parse("-g", "**/*Test.java", "-t", "1", "-i", "1");
-        assertThat(TestSplitMain.validate(arguments, tmp)).isFalse();
+        assertThat(TestSplitMain.validateArguments(arguments, tmp)).isFalse();
     }
 
     @Test
     void validateArguments_withInvalidWorkingDirectory() {
         jCommander.parse("-g", "**/*Test.java", "-t", "1", "-i", "0");
-        assertThat(TestSplitMain.validate(arguments, tmp.resolve("does-not-exist"))).isFalse();
+        assertThat(TestSplitMain.validateArguments(arguments, tmp.resolve("does-not-exist"))).isFalse();
     }
 }
