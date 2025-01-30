@@ -54,8 +54,6 @@ dependencies {
 
     testImplementation(libs.assertj)
     testImplementation(libs.equalsVerifier)
-    testImplementation(libs.systemStubs.core)
-    testImplementation(libs.systemStubs)
 }
 
 tasks.test {

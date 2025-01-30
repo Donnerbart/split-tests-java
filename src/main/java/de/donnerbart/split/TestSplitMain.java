@@ -42,7 +42,7 @@ public class TestSplitMain {
                 workingDirectory,
                 arguments.debug,
                 System::exit);
-        testSplit.run();
+        System.out.print(testSplit.run());
     }
 
     @VisibleForTesting

@@ -65,7 +65,7 @@ public class TestSplit {
         this.exitCodeConsumer = exitCodeConsumer;
     }
 
-    public void run() throws Exception {
+    public @NotNull String run() throws Exception {
         LOG.info("Split index {} (total: {})", splitIndex, splitTotal);
         LOG.info("Working directory: {}", workingDirectory);
         LOG.info("Glob: {}", glob);
@@ -149,11 +149,11 @@ public class TestSplit {
         }
         final var split = splits.get(splitIndex);
         LOG.info("This test split has {} tests ({})", split.tests().size(), formatTime(split.totalRecordedTime()));
-        System.out.print(split.tests()
+        return split.tests()
                 .stream()
                 .sorted(Comparator.reverseOrder())
                 .map(TestCase::name)
-                .collect(Collectors.joining(" ")));
+                .collect(Collectors.joining(" "));
     }
 
     private static @NotNull Set<Path> getPaths(

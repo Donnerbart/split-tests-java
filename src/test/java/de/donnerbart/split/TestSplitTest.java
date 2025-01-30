@@ -3,15 +3,12 @@ package de.donnerbart.split;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import uk.org.webcompere.systemstubs.jupiter.SystemStub;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
-import uk.org.webcompere.systemstubs.stream.SystemOut;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,13 +17,9 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SystemStubsExtension.class)
 class TestSplitTest {
 
     private static final @NotNull Set<PosixFilePermission> PERMISSIONS = Set.of(OWNER_READ, OWNER_WRITE);
-
-    @SystemStub
-    private @NotNull SystemOut systemOut;
 
     @TempDir
     private @NotNull Path tmp;
@@ -84,15 +77,15 @@ class TestSplitTest {
                 tmp,
                 true,
                 exitCode::set);
-        split.run();
 
-        assertThat(systemOut.getLines()).singleElement().isEqualTo( //
+        assertThat(split.run()).isEqualTo(
                 "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest de.donnerbart.example.SlowTest de.donnerbart.example.SlowestTest");
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_withoutJUnit_withTwoSplits() throws Exception {
+        final var splits = new ArrayList<String>();
         for (int index = 0; index <= 1; index++) {
             final var split = new TestSplit(index,
                     2,
@@ -102,12 +95,10 @@ class TestSplitTest {
                     tmp,
                     true,
                     exitCode::set);
-            split.run();
-            // add a new line to separate the captured output
-            System.out.println();
+            splits.add(split.run());
         }
 
-        assertThat(systemOut.getLines()).hasSize(2).containsSequence( //
+        assertThat(splits).hasSize(2).containsExactly( //
                 "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingTwoTest de.donnerbart.example.SlowestTest",
                 "de.donnerbart.example.NoTimingOneTest de.donnerbart.example.SlowTest");
         assertThat(exitCode).hasNullValue();
@@ -115,6 +106,7 @@ class TestSplitTest {
 
     @Test
     void run_withoutJUnit_withThreeSplits() throws Exception {
+        final var splits = new ArrayList<String>();
         for (int index = 0; index <= 2; index++) {
             final var split = new TestSplit(index,
                     3,
@@ -124,12 +116,10 @@ class TestSplitTest {
                     tmp,
                     true,
                     exitCode::set);
-            split.run();
-            // add a new line to separate the captured output
-            System.out.println();
+            splits.add(split.run());
         }
 
-        assertThat(systemOut.getLines()).hasSize(3).containsSequence( //
+        assertThat(splits).hasSize(3).containsExactly( //
                 "de.donnerbart.example.FastTest de.donnerbart.example.SlowTest",
                 "de.donnerbart.example.NoTimingOneTest de.donnerbart.example.SlowestTest",
                 "de.donnerbart.example.NoTimingTwoTest");
@@ -146,15 +136,15 @@ class TestSplitTest {
                 tmp,
                 true,
                 exitCode::set);
-        split.run();
 
-        assertThat(systemOut.getLines()).singleElement().isEqualTo( //
+        assertThat(split.run()).isEqualTo(
                 "de.donnerbart.example.SlowestTest de.donnerbart.example.SlowTest de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_withJUnit_withTwoSplits() throws Exception {
+        final var splits = new ArrayList<String>();
         for (int index = 0; index <= 1; index++) {
             final var split = new TestSplit(index,
                     2,
@@ -164,12 +154,10 @@ class TestSplitTest {
                     tmp,
                     true,
                     exitCode::set);
-            split.run();
-            // add a new line to separate the captured output
-            System.out.println();
+            splits.add(split.run());
         }
 
-        assertThat(systemOut.getLines()).hasSize(2).containsSequence( //
+        assertThat(splits).hasSize(2).containsExactly( //
                 "de.donnerbart.example.SlowestTest",
                 "de.donnerbart.example.SlowTest de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
         assertThat(exitCode).hasNullValue();
@@ -177,6 +165,7 @@ class TestSplitTest {
 
     @Test
     void run_withJUnit_withThreeSplits() throws Exception {
+        final var splits = new ArrayList<String>();
         for (int index = 0; index <= 2; index++) {
             final var split = new TestSplit(index,
                     3,
@@ -186,12 +175,10 @@ class TestSplitTest {
                     tmp,
                     true,
                     exitCode::set);
-            split.run();
-            // add a new line to separate the captured output
-            System.out.println();
+            splits.add(split.run());
         }
 
-        assertThat(systemOut.getLines()).hasSize(3).containsSequence( //
+        assertThat(splits).hasSize(3).containsExactly( //
                 "de.donnerbart.example.SlowestTest",
                 "de.donnerbart.example.SlowTest",
                 "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
@@ -200,6 +187,7 @@ class TestSplitTest {
 
     @Test
     void run_withJUnit_withFourSplits() throws Exception {
+        final var splits = new ArrayList<String>();
         for (int index = 0; index <= 3; index++) {
             final var split = new TestSplit(index,
                     4,
@@ -209,12 +197,10 @@ class TestSplitTest {
                     tmp,
                     true,
                     exitCode::set);
-            split.run();
-            // add a new line to separate the captured output
-            System.out.println();
+            splits.add(split.run());
         }
 
-        assertThat(systemOut.getLines()).hasSize(4).containsSequence( //
+        assertThat(splits).hasSize(4).containsExactly( //
                 "de.donnerbart.example.SlowestTest",
                 "de.donnerbart.example.SlowTest",
                 "de.donnerbart.example.FastTest",
@@ -231,7 +217,7 @@ class TestSplitTest {
                 "WhitespaceClassDefinitionTest.java",
                 PERMISSIONS);
 
-        final var testSplit = new TestSplit(0,
+        final var split = new TestSplit(0,
                 1,
                 "**/multiline-class-definition-project/**/*Test.java",
                 null,
@@ -239,10 +225,8 @@ class TestSplitTest {
                 projectFolder,
                 true,
                 exitCode::set);
-        testSplit.run();
 
-        assertThat(systemOut.getLines()).singleElement()
-                .isEqualTo("de.donnerbart.example.WhitespaceClassDefinitionTest");
+        assertThat(split.run()).isEqualTo("de.donnerbart.example.WhitespaceClassDefinitionTest");
         assertThat(exitCode).hasNullValue();
     }
 
@@ -255,7 +239,7 @@ class TestSplitTest {
                 "ThirdPartyLibraryTest.java",
                 PERMISSIONS);
 
-        final var testSplit = new TestSplit(0,
+        final var split = new TestSplit(0,
                 1,
                 "**/third-party-library-project/**/*Test.java",
                 null,
@@ -263,9 +247,8 @@ class TestSplitTest {
                 projectFolder,
                 true,
                 exitCode::set);
-        testSplit.run();
 
-        assertThat(systemOut.getLines()).singleElement().isEqualTo("de.donnerbart.example.ThirdPartyLibraryTest");
+        assertThat(split.run()).isEqualTo("de.donnerbart.example.ThirdPartyLibraryTest");
         assertThat(exitCode).hasNullValue();
     }
 
@@ -274,7 +257,7 @@ class TestSplitTest {
         final var projectFolder = tmp.resolve("no-package-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder, "tests/NoPackageTest.java", "NoPackageTest.java", PERMISSIONS);
 
-        final var testSplit = new TestSplit(0,
+        final var split = new TestSplit(0,
                 1,
                 "**/no-package-project/**/*Test.java",
                 null,
@@ -282,9 +265,8 @@ class TestSplitTest {
                 projectFolder,
                 true,
                 exitCode::set);
-        testSplit.run();
 
-        assertThat(systemOut.getLines()).singleElement().isEqualTo("NoPackageTest");
+        assertThat(split.run()).isEqualTo("NoPackageTest");
         assertThat(exitCode).hasNullValue();
     }
 
@@ -292,7 +274,7 @@ class TestSplitTest {
     void run_noTests() throws Exception {
         final var projectFolder = tmp.resolve("no-tests-project").resolve("src").resolve("main").resolve("java");
 
-        final var testSplit = new TestSplit(0,
+        final var split = new TestSplit(0,
                 1,
                 "**/no-tests-project/**/*Test.java",
                 null,
@@ -300,9 +282,8 @@ class TestSplitTest {
                 projectFolder,
                 true,
                 exitCode::set);
-        testSplit.run();
 
-        assertThat(systemOut.getLinesNormalized()).isEmpty();
+        assertThat(split.run()).isEmpty();
         assertThat(exitCode).hasValue(1);
     }
 
@@ -311,7 +292,7 @@ class TestSplitTest {
         final var projectFolder = tmp.resolve("no-classname-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder, "tests/NoClassNameTest.java", "NoClassNameTest.java", PERMISSIONS);
 
-        final var testSplit = new TestSplit(0,
+        final var split = new TestSplit(0,
                 1,
                 "**/no-classname-project/**/*Test.java",
                 null,
@@ -319,9 +300,8 @@ class TestSplitTest {
                 projectFolder,
                 true,
                 exitCode::set);
-        testSplit.run();
 
-        assertThat(systemOut.getLinesNormalized()).isEmpty();
+        assertThat(split.run()).isEmpty();
         assertThat(exitCode).hasValue(1);
     }
 }
