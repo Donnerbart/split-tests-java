@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.nodeTypes.NodeWithName;
 import de.donnerbart.split.model.Split;
 import de.donnerbart.split.model.TestCase;
 import de.donnerbart.split.model.TestSuite;
@@ -30,8 +31,9 @@ import static de.donnerbart.split.util.FormatUtil.formatTime;
 
 public class TestSplit {
 
-    private static final @NotNull Set<String> SKIP_TEST_ANNOTATIONS =
-            Set.of("org.junit.jupiter.api.Disabled", "Disabled", "org.junit.Ignore", "Ignore");
+    private static final @NotNull Set<String> SKIP_TEST_IMPORTS =
+            Set.of("org.junit.jupiter.api.Disabled", "org.junit.Ignore");
+    private static final @NotNull Set<String> SKIP_TEST_ANNOTATIONS = Set.of("Disabled", "Ignore");
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(TestSplit.class);
 
@@ -195,18 +197,26 @@ public class TestSplit {
                 final var className = declaration.getFullyQualifiedName().orElseThrow();
                 if (declaration.isInterface()) {
                     LOG.info("Skipping test interface {}", className);
+                    continue;
                 } else if (declaration.isAbstract()) {
                     LOG.info("Skipping abstract test class {}", className);
-                } else if (declaration.getAnnotations()
+                    continue;
+                }
+                final var hasSkipTestImport = compilationUnit.getImports()
+                        .stream()
+                        .map(NodeWithName::getNameAsString)
+                        .anyMatch(SKIP_TEST_IMPORTS::contains);
+                final var hasSkipTestAnnotation = declaration.getAnnotations()
                         .stream()
                         .map(AnnotationExpr::getNameAsString)
-                        .anyMatch(SKIP_TEST_ANNOTATIONS::contains)) {
+                        .anyMatch(SKIP_TEST_ANNOTATIONS::contains);
+                if (hasSkipTestImport && hasSkipTestAnnotation) {
                     LOG.info("Skipping disabled test class {}", className);
-                } else {
-                    classNames.add(className);
+                    continue;
                 }
+                classNames.add(className);
             } catch (final Exception e) {
-                LOG.error("Failed to parse test class: {}", testPath, e);
+                LOG.error("Failed to parse test class {}", testPath, e);
                 exitCodeConsumer.accept(1);
             }
         }

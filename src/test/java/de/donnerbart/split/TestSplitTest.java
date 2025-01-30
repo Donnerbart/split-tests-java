@@ -43,9 +43,12 @@ class TestSplitTest {
                 .resolve("donnerbart")
                 .resolve("example");
         Files.createDirectories(projectFolder);
+        // ignored tests
         copyResourceToTarget(projectFolder, "tests/BaseTest.java", "BaseTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/DisabledTest.java", "DisabledTest.java", PERMISSIONS);
+        copyResourceToTarget(projectFolder, "tests/IgnoreTest.java", "IgnoreTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/InterfaceTest.java", "InterfaceTest.java", PERMISSIONS);
+        // valid tests
         copyResourceToTarget(projectFolder, "tests/FastTest.java", "FastTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
