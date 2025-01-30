@@ -28,7 +28,6 @@ public class TestSplitMain {
             System.out.println("--split-index must lesser than --split-total");
             System.exit(1);
         }
-        final var excludeGlob = arguments.excludeGlob != null ? arguments.excludeGlob : "**/*Abstract*";
         final var workingDirectory = arguments.workingDirectory != null ?
                 arguments.workingDirectory.toAbsolutePath() :
                 Paths.get(System.getProperty("user.dir")).toAbsolutePath();
@@ -44,7 +43,7 @@ public class TestSplitMain {
         final var testSplit = new TestSplit(arguments.splitIndex,
                 arguments.splitTotal,
                 arguments.glob,
-                excludeGlob,
+                arguments.excludeGlob,
                 arguments.junitGlob,
                 workingDirectory,
                 arguments.debug,

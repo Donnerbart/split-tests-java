@@ -193,11 +193,15 @@ public class TestSplit {
                 final var compilationUnit = javaParser.parse(testPath).getResult().orElseThrow();
                 final var declaration = compilationUnit.findFirst(ClassOrInterfaceDeclaration.class).orElseThrow();
                 final var className = declaration.getFullyQualifiedName().orElseThrow();
-                if (declaration.getAnnotations()
+                if (declaration.isInterface()) {
+                    LOG.info("Skipping test interface {}", className);
+                } else if (declaration.isAbstract()) {
+                    LOG.info("Skipping abstract test class {}", className);
+                } else if (declaration.getAnnotations()
                         .stream()
                         .map(AnnotationExpr::getNameAsString)
                         .anyMatch(SKIP_TEST_ANNOTATIONS::contains)) {
-                    LOG.info("Skipping disabled test {}", className);
+                    LOG.info("Skipping disabled test class {}", className);
                 } else {
                     classNames.add(className);
                 }
