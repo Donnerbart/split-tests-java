@@ -1,11 +1,11 @@
-package de.donnerbart.split;
+package de.donnerbart.split.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-record TestCase(@NotNull String name, double time) implements Comparable<TestCase> {
+public record TestCase(@NotNull String name, double time) implements Comparable<TestCase> {
 
     @Override
     public int compareTo(final @NotNull TestCase o) {

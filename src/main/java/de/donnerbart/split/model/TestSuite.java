@@ -1,4 +1,4 @@
-package de.donnerbart.split;
+package de.donnerbart.split.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

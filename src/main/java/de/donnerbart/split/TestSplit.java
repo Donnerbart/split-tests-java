@@ -4,6 +4,9 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import de.donnerbart.split.model.Split;
+import de.donnerbart.split.model.TestCase;
+import de.donnerbart.split.model.TestSuite;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -23,8 +26,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static de.donnerbart.split.Util.formatIndex;
-import static de.donnerbart.split.Util.formatTime;
+import static de.donnerbart.split.util.FormatUtil.formatTime;
 
 public class TestSplit {
 
@@ -130,12 +132,12 @@ public class TestSplit {
         if (debug) {
             final var fastestSplit = splits.stream().min(Comparator.naturalOrder()).orElseThrow();
             LOG.debug("Fastest test plan is #{} with {} tests ({})",
-                    formatIndex(fastestSplit.index()),
+                    fastestSplit.formatIndex(),
                     fastestSplit.tests().size(),
                     formatTime(fastestSplit.totalRecordedTime()));
             final var slowestSplit = splits.stream().max(Comparator.naturalOrder()).orElseThrow();
             LOG.debug("Slowest test plan is #{} with {} tests ({})",
-                    formatIndex(slowestSplit.index()),
+                    slowestSplit.formatIndex(),
                     slowestSplit.tests().size(),
                     formatTime(slowestSplit.totalRecordedTime()));
             LOG.debug("Difference between the fastest and slowest test plan: {}",

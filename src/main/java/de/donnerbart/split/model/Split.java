@@ -1,5 +1,6 @@
-package de.donnerbart.split;
+package de.donnerbart.split.model;
 
+import de.donnerbart.split.util.FormatUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -8,26 +9,30 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class Split implements Comparable<Split> {
+public class Split implements Comparable<Split> {
 
     private final @NotNull Set<TestCase> tests = new HashSet<>();
     private final int index;
 
     private double totalRecordedTime;
 
-    Split(final int index) {
+    public Split(final int index) {
         this.index = index;
     }
 
-    int index() {
+    public int index() {
         return index;
     }
 
-    double totalRecordedTime() {
+    public @NotNull String formatIndex() {
+        return String.format("%02d", index);
+    }
+
+    public double totalRecordedTime() {
         return totalRecordedTime;
     }
 
-    @NotNull Set<TestCase> tests() {
+    public @NotNull Set<TestCase> tests() {
         return tests;
     }
 
@@ -61,9 +66,9 @@ class Split implements Comparable<Split> {
     public String toString() {
         return "Split{" +
                 "index=" +
-                Util.formatIndex(index) +
+                formatIndex() +
                 ", totalRecordedTime=" +
-                Util.formatTime(totalRecordedTime) +
+                FormatUtil.formatTime(totalRecordedTime) +
                 ", testCount=" +
                 tests.size() +
                 ", tests=" +
@@ -71,7 +76,7 @@ class Split implements Comparable<Split> {
                 '}';
     }
 
-    void add(final @NotNull TestCase testCase) {
+    public void add(final @NotNull TestCase testCase) {
         tests.add(testCase);
         totalRecordedTime += testCase.time();
     }
