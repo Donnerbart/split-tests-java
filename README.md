@@ -72,7 +72,7 @@ This tool is written in Java and uses Gradle as build tool.
 
 ## Note
 
-split-tests-java is inspired by [`split-tests`](https://github.com/mtsmfm/split-test) for Ruby.
+split-tests-java is inspired by [`split-test`](https://github.com/mtsmfm/split-test) for Ruby.
 
 In comparison to split-test, split-tests-java works with default JUnit reports.
 The output are also fully qualified class names instead of file names.
