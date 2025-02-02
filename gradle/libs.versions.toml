@@ -20,4 +20,4 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]
-shadow = { id = "com.gradleup.shadow", version = "8.3.5" }
+shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
