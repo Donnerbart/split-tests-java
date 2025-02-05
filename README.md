@@ -38,12 +38,20 @@ java -jar split-tests-java.jar --split-index 0 --split-total 10 --glob 'project/
 ```plain
 Usage: <main class> [options]
   Options:
+    --averageTime, -a
+      Use the average test time from tests with JUnit reports for tests 
+      without JUnit reports.
+      Default: false
     --debug, -d
       Enables debug logging.
       Default: false
     --exclude-glob, -e
-      Glob pattern to exclude test files. Defaults to '**/*Abstract*'. Make 
-      sure to single-quote the pattern to avoid shell expansion.
+      Glob pattern to exclude test files. Make sure to single-quote the 
+      pattern to avoid shell expansion.
+    --format, -f
+      The output format.
+      Default: list
+      Possible Values: [list, gradle]
   * --glob, -g
       Glob pattern to find test files. Make sure to single-quote the pattern 
       to avoid shell expansion.
