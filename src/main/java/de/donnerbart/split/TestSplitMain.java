@@ -40,6 +40,7 @@ public class TestSplitMain {
                 arguments.excludeGlob,
                 arguments.junitGlob,
                 arguments.format,
+                arguments.useAverageTimeForNewTests,
                 workingDirectory,
                 arguments.debug,
                 System::exit);

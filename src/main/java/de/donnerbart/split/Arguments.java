@@ -41,11 +41,15 @@ class Arguments {
             """, converter = FormatOptionConverter.class)
     @NotNull FormatOption format = FormatOption.LIST;
 
+    @Parameter(names = {"--averageTime", "-a"},
+               description = "Use the average test time from tests with JUnit reports for tests without JUnit reports. Defaults to 'false'.")
+    boolean useAverageTimeForNewTests = false;
+
     @Parameter(names = {"--working-directory", "-w"},
                description = "The working directory. Defaults to the current directory.")
     @Nullable Path workingDirectory;
 
-    @Parameter(names = {"--debug", "-d"}, description = "Enables debug logging.")
+    @Parameter(names = {"--debug", "-d"}, description = "Enables debug logging. Defaults to 'false'.")
     boolean debug = false;
 
     public static class FormatOptionConverter implements IStringConverter<FormatOption> {

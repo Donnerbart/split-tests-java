@@ -44,6 +44,7 @@ public class TestSplit {
     private final @Nullable String excludeGlob;
     private final @Nullable String junitGlob;
     private final @NotNull FormatOption format;
+    private final boolean useAverageTimeForNewTests;
     private final @NotNull Path workingDirectory;
     private final boolean debug;
     private final @NotNull Consumer<Integer> exitCodeConsumer;
@@ -55,6 +56,7 @@ public class TestSplit {
             final @Nullable String excludeGlob,
             final @Nullable String junitGlob,
             final @NotNull FormatOption format,
+            final boolean useAverageTimeForNewTests,
             final @NotNull Path workingDirectory,
             final boolean debug,
             final @NotNull Consumer<Integer> exitCodeConsumer) {
@@ -64,6 +66,7 @@ public class TestSplit {
         this.excludeGlob = excludeGlob;
         this.junitGlob = junitGlob;
         this.format = format;
+        this.useAverageTimeForNewTests = useAverageTimeForNewTests;
         this.workingDirectory = workingDirectory;
         this.debug = debug;
         this.exitCodeConsumer = exitCodeConsumer;
@@ -116,8 +119,9 @@ public class TestSplit {
             }
         }
         // add tests without timing records
+        final var newTestTime = getNewTestTime(useAverageTimeForNewTests, testCases);
         classNames.forEach(className -> {
-            final var testCase = new TestCase(className, 0d);
+            final var testCase = new TestCase(className, newTestTime);
             if (testCases.add(testCase)) {
                 LOG.debug("Adding test {}", testCase.name());
             }
@@ -234,5 +238,16 @@ public class TestSplit {
             }
         }
         return classNames;
+    }
+
+    private static double getNewTestTime(
+            final boolean useAverageTimeForNewTests,
+            final @NotNull Set<TestCase> testCases) {
+        if (!useAverageTimeForNewTests || testCases.isEmpty()) {
+            return 0d;
+        }
+        final var averageTime = testCases.stream().mapToDouble(TestCase::time).sum() / (double) testCases.size();
+        LOG.info("Average test time is {}", formatTime(averageTime));
+        return averageTime;
     }
 }
