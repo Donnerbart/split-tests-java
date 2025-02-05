@@ -26,30 +26,25 @@ class Arguments {
     @NotNull String glob;
 
     @Parameter(names = {"--exclude-glob", "-e"},
-               description = "Glob pattern to exclude test files. Defaults to '**/*Abstract*'. Make sure to single-quote the pattern to avoid shell expansion.")
+               description = "Glob pattern to exclude test files. Make sure to single-quote the pattern to avoid shell expansion.")
     @Nullable String excludeGlob;
 
     @Parameter(names = {"--junit-glob", "-j"},
                description = "Glob pattern to find JUnit reports. Make sure to single-quote the pattern to avoid shell expansion.")
     @Nullable String junitGlob;
 
-    @Parameter(names = {"--format", "-f"}, description = """
-            The output format:
-              * list: prints a space delimited list.
-              * gradle: adds a '--tests' filter for each test.
-            Defaults to 'list'.
-            """, converter = FormatOptionConverter.class)
+    @Parameter(names = {"--format", "-f"}, description = "The output format.", converter = FormatOptionConverter.class)
     @NotNull FormatOption format = FormatOption.LIST;
 
     @Parameter(names = {"--averageTime", "-a"},
-               description = "Use the average test time from tests with JUnit reports for tests without JUnit reports. Defaults to 'false'.")
+               description = "Use the average test time from tests with JUnit reports for tests without JUnit reports.")
     boolean useAverageTimeForNewTests = false;
 
     @Parameter(names = {"--working-directory", "-w"},
                description = "The working directory. Defaults to the current directory.")
     @Nullable Path workingDirectory;
 
-    @Parameter(names = {"--debug", "-d"}, description = "Enables debug logging. Defaults to 'false'.")
+    @Parameter(names = {"--debug", "-d"}, description = "Enables debug logging.")
     boolean debug = false;
 
     public static class FormatOptionConverter implements IStringConverter<FormatOption> {
@@ -57,7 +52,7 @@ class Arguments {
         @Override
         public @NotNull FormatOption convert(final @NotNull String value) {
             return Arrays.stream(FormatOption.values())
-                    .filter(option -> option.getParameterValue().equals(value))
+                    .filter(option -> option.toString().equals(value))
                     .findFirst()
                     .orElseThrow();
         }

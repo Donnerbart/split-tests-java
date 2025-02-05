@@ -13,7 +13,8 @@ public enum FormatOption {
         this.parameterValue = parameterValue;
     }
 
-    public @NotNull String getParameterValue() {
+    @Override
+    public String toString() {
         return parameterValue;
     }
 }

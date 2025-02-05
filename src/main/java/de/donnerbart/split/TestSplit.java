@@ -82,7 +82,7 @@ public class TestSplit {
         if (junitGlob != null) {
             LOG.info("JUnit glob: {}", junitGlob);
         }
-        LOG.info("Output format: {}", format.getParameterValue());
+        LOG.info("Output format: {}", format);
         final var testPaths = getPaths(workingDirectory, glob, excludeGlob);
         final var classNames = fileToClassName(testPaths, exitCodeConsumer);
         if (classNames.isEmpty()) {
