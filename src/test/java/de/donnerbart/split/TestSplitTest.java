@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -69,142 +70,91 @@ class TestSplitTest {
 
     @Test
     void run_withoutJUnit_withOneSplit() throws Exception {
-        final var split = new TestSplit(0,
-                1,
-                "**/example-project/**/*Test.java",
-                "**/example-project/**/*Abstract*.java",
-                null,
-                tmp,
-                true,
-                exitCode::set);
-
-        assertThat(split.run()).isEqualTo(
-                "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest de.donnerbart.example.SlowTest de.donnerbart.example.SlowestTest");
+        final var splits = splitTests(1, false);
+        assertThat(splits).hasSize(1).containsExactly( //
+                List.of("de.donnerbart.example.FastTest",
+                        "de.donnerbart.example.NoTimingOneTest",
+                        "de.donnerbart.example.NoTimingTwoTest",
+                        "de.donnerbart.example.SlowTest",
+                        "de.donnerbart.example.SlowestTest"));
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_withoutJUnit_withTwoSplits() throws Exception {
-        final var splits = new ArrayList<String>();
-        for (int index = 0; index <= 1; index++) {
-            final var split = new TestSplit(index,
-                    2,
-                    "**/example-project/**/*Test.java",
-                    "**/example-project/**/*Abstract*.java",
-                    null,
-                    tmp,
-                    true,
-                    exitCode::set);
-            splits.add(split.run());
-        }
-
+        final var splits = splitTests(2, false);
         assertThat(splits).hasSize(2).containsExactly( //
-                "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingTwoTest de.donnerbart.example.SlowestTest",
-                "de.donnerbart.example.NoTimingOneTest de.donnerbart.example.SlowTest");
+                List.of("de.donnerbart.example.FastTest",
+                        "de.donnerbart.example.NoTimingTwoTest",
+                        "de.donnerbart.example.SlowestTest"),
+                List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowTest"));
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_withoutJUnit_withThreeSplits() throws Exception {
-        final var splits = new ArrayList<String>();
-        for (int index = 0; index <= 2; index++) {
-            final var split = new TestSplit(index,
-                    3,
-                    "**/example-project/**/*Test.java",
-                    "**/example-project/**/*Abstract*.java",
-                    null,
-                    tmp,
-                    true,
-                    exitCode::set);
-            splits.add(split.run());
-        }
-
+        final var splits = splitTests(3, false);
         assertThat(splits).hasSize(3).containsExactly( //
-                "de.donnerbart.example.FastTest de.donnerbart.example.SlowTest",
-                "de.donnerbart.example.NoTimingOneTest de.donnerbart.example.SlowestTest",
-                "de.donnerbart.example.NoTimingTwoTest");
+                List.of("de.donnerbart.example.FastTest", "de.donnerbart.example.SlowTest"),
+                List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowestTest"),
+                List.of("de.donnerbart.example.NoTimingTwoTest"));
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
+    void run_withoutJUnit_withThreeSplits_withGradleFormat() throws Exception {
+        final var splits = splitTests(3, false, "**/example-project/**/*Test.java", tmp, FormatOption.GRADLE);
+        assertThat(splits).hasSize(3).containsExactly( //
+                List.of("--tests de.donnerbart.example.FastTest", "--tests de.donnerbart.example.SlowTest"),
+                List.of("--tests de.donnerbart.example.NoTimingOneTest", "--tests de.donnerbart.example.SlowestTest"),
+                List.of("--tests de.donnerbart.example.NoTimingTwoTest"));
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_withJUnit_withOneSplit() throws Exception {
-        final var split = new TestSplit(0,
-                1,
-                "**/example-project/**/*Test.java",
-                "**/example-project/**/*Abstract*.java",
-                "**/junit-reports/*.xml",
-                tmp,
-                true,
-                exitCode::set);
-
-        assertThat(split.run()).isEqualTo(
-                "de.donnerbart.example.SlowestTest de.donnerbart.example.SlowTest de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
+        final var splits = splitTests(1, true);
+        assertThat(splits).hasSize(1).containsExactly( //
+                List.of("de.donnerbart.example.SlowestTest",
+                        "de.donnerbart.example.SlowTest",
+                        "de.donnerbart.example.FastTest",
+                        "de.donnerbart.example.NoTimingOneTest",
+                        "de.donnerbart.example.NoTimingTwoTest"));
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_withJUnit_withTwoSplits() throws Exception {
-        final var splits = new ArrayList<String>();
-        for (int index = 0; index <= 1; index++) {
-            final var split = new TestSplit(index,
-                    2,
-                    "**/example-project/**/*Test.java",
-                    "**/example-project/**/*Abstract*.java",
-                    "**/junit-reports/*.xml",
-                    tmp,
-                    true,
-                    exitCode::set);
-            splits.add(split.run());
-        }
-
+        final var splits = splitTests(2, true);
         assertThat(splits).hasSize(2).containsExactly( //
-                "de.donnerbart.example.SlowestTest",
-                "de.donnerbart.example.SlowTest de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
+                List.of("de.donnerbart.example.SlowestTest"),
+                List.of("de.donnerbart.example.SlowTest",
+                        "de.donnerbart.example.FastTest",
+                        "de.donnerbart.example.NoTimingOneTest",
+                        "de.donnerbart.example.NoTimingTwoTest"));
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_withJUnit_withThreeSplits() throws Exception {
-        final var splits = new ArrayList<String>();
-        for (int index = 0; index <= 2; index++) {
-            final var split = new TestSplit(index,
-                    3,
-                    "**/example-project/**/*Test.java",
-                    "**/example-project/**/*Abstract*.java",
-                    "**/junit-reports/*.xml",
-                    tmp,
-                    true,
-                    exitCode::set);
-            splits.add(split.run());
-        }
-
+        final var splits = splitTests(3, true);
         assertThat(splits).hasSize(3).containsExactly( //
-                "de.donnerbart.example.SlowestTest",
-                "de.donnerbart.example.SlowTest",
-                "de.donnerbart.example.FastTest de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
+                List.of("de.donnerbart.example.SlowestTest"),
+                List.of("de.donnerbart.example.SlowTest"),
+                List.of("de.donnerbart.example.FastTest",
+                        "de.donnerbart.example.NoTimingOneTest",
+                        "de.donnerbart.example.NoTimingTwoTest"));
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_withJUnit_withFourSplits() throws Exception {
-        final var splits = new ArrayList<String>();
-        for (int index = 0; index <= 3; index++) {
-            final var split = new TestSplit(index,
-                    4,
-                    "**/example-project/**/*Test.java",
-                    "**/example-project/**/*Abstract*.java",
-                    "**/junit-reports/*.xml",
-                    tmp,
-                    true,
-                    exitCode::set);
-            splits.add(split.run());
-        }
-
+        final var splits = splitTests(4, true);
         assertThat(splits).hasSize(4).containsExactly( //
-                "de.donnerbart.example.SlowestTest",
-                "de.donnerbart.example.SlowTest",
-                "de.donnerbart.example.FastTest",
-                "de.donnerbart.example.NoTimingOneTest de.donnerbart.example.NoTimingTwoTest");
+                List.of("de.donnerbart.example.SlowestTest"),
+                List.of("de.donnerbart.example.SlowTest"),
+                List.of("de.donnerbart.example.FastTest"),
+                List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.NoTimingTwoTest"));
         assertThat(exitCode).hasNullValue();
     }
 
@@ -222,11 +172,12 @@ class TestSplitTest {
                 "**/multiline-class-definition-project/**/*Test.java",
                 null,
                 null,
+                FormatOption.LIST,
                 projectFolder,
                 true,
                 exitCode::set);
 
-        assertThat(split.run()).isEqualTo("de.donnerbart.example.WhitespaceClassDefinitionTest");
+        assertThat(split.run()).containsExactly("de.donnerbart.example.WhitespaceClassDefinitionTest");
         assertThat(exitCode).hasNullValue();
     }
 
@@ -239,16 +190,9 @@ class TestSplitTest {
                 "ThirdPartyLibraryTest.java",
                 PERMISSIONS);
 
-        final var split = new TestSplit(0,
-                1,
-                "**/third-party-library-project/**/*Test.java",
-                null,
-                null,
-                projectFolder,
-                true,
-                exitCode::set);
-
-        assertThat(split.run()).isEqualTo("de.donnerbart.example.ThirdPartyLibraryTest");
+        final var splits =
+                splitTests(1, false, "**/third-party-library-project/**/*Test.java", projectFolder, FormatOption.LIST);
+        assertThat(splits).hasSize(1).containsExactly(List.of("de.donnerbart.example.ThirdPartyLibraryTest"));
         assertThat(exitCode).hasNullValue();
     }
 
@@ -257,33 +201,19 @@ class TestSplitTest {
         final var projectFolder = tmp.resolve("no-package-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder, "tests/NoPackageTest.java", "NoPackageTest.java", PERMISSIONS);
 
-        final var split = new TestSplit(0,
-                1,
-                "**/no-package-project/**/*Test.java",
-                null,
-                null,
-                projectFolder,
-                true,
-                exitCode::set);
-
-        assertThat(split.run()).isEqualTo("NoPackageTest");
+        final var splits =
+                splitTests(1, false, "**/no-package-project/**/*Test.java", projectFolder, FormatOption.LIST);
+        assertThat(splits).hasSize(1).containsExactly(List.of("NoPackageTest"));
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
     void run_noTests() throws Exception {
         final var projectFolder = tmp.resolve("no-tests-project").resolve("src").resolve("main").resolve("java");
+        Files.createDirectories(projectFolder);
 
-        final var split = new TestSplit(0,
-                1,
-                "**/no-tests-project/**/*Test.java",
-                null,
-                null,
-                projectFolder,
-                true,
-                exitCode::set);
-
-        assertThat(split.run()).isEmpty();
+        final var splits = splitTests(1, false, "**/no-tests-project/**/*Test.java", projectFolder, FormatOption.LIST);
+        assertThat(splits).hasSize(1).containsExactly(List.of());
         assertThat(exitCode).hasValue(1);
     }
 
@@ -292,16 +222,35 @@ class TestSplitTest {
         final var projectFolder = tmp.resolve("no-classname-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder, "tests/NoClassNameTest.java", "NoClassNameTest.java", PERMISSIONS);
 
-        final var split = new TestSplit(0,
-                1,
-                "**/no-classname-project/**/*Test.java",
-                null,
-                null,
-                projectFolder,
-                true,
-                exitCode::set);
-
-        assertThat(split.run()).isEmpty();
+        final var splits =
+                splitTests(1, false, "**/no-classname-project/**/*Test.java", projectFolder, FormatOption.LIST);
+        assertThat(splits).hasSize(1).containsExactly(List.of());
         assertThat(exitCode).hasValue(1);
+    }
+
+    private @NotNull List<List<String>> splitTests(final int splitTotal, final boolean withJUnit) throws Exception {
+        return splitTests(splitTotal, withJUnit, "**/example-project/**/*Test.java", tmp, FormatOption.LIST);
+    }
+
+    private @NotNull List<List<String>> splitTests(
+            final int splitTotal,
+            final boolean withJUnit,
+            final @NotNull String glob,
+            final @NotNull Path workingDir,
+            final @NotNull FormatOption format) throws Exception {
+        final var splits = new ArrayList<List<String>>();
+        for (int index = 0; index < splitTotal; index++) {
+            final var split = new TestSplit(index,
+                    splitTotal,
+                    glob,
+                    "**/example-project/**/*Abstract*.java",
+                    withJUnit ? "**/junit-reports/*.xml" : null,
+                    format,
+                    workingDir,
+                    true,
+                    exitCode::set);
+            splits.add(split.run());
+        }
+        return splits;
     }
 }
