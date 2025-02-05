@@ -36,7 +36,7 @@ class Arguments {
     @Parameter(names = {"--format", "-f"}, description = "The output format.", converter = FormatOptionConverter.class)
     @NotNull FormatOption format = FormatOption.LIST;
 
-    @Parameter(names = {"--averageTime", "-a"},
+    @Parameter(names = {"--average-time", "-a"},
                description = "Use the average test time from tests with JUnit reports for tests without JUnit reports.")
     boolean useAverageTimeForNewTests = false;
 
