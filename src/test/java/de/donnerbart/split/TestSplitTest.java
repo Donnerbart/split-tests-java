@@ -38,6 +38,7 @@ class TestSplitTest {
                 .resolve("example");
         Files.createDirectories(projectFolder);
         // ignored tests
+        copyResourceToTarget(projectFolder, "tests/AbstractTest.java", "AbstractTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/BaseTest.java", "BaseTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/DisabledTest.java", "DisabledTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/IgnoreTest.java", "IgnoreTest.java", PERMISSIONS);

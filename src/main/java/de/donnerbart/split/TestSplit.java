@@ -179,8 +179,12 @@ public class TestSplit {
                     final @NotNull BasicFileAttributes attributes) {
                 if (path != null) {
                     final var candidate = path.normalize();
-                    if (includeMatcher.matches(candidate) && !excludeMatcher.matches(candidate)) {
-                        files.add(candidate);
+                    if (includeMatcher.matches(candidate)) {
+                        if (excludeMatcher.matches(candidate)) {
+                            LOG.debug("Excluding test file {}", candidate);
+                        } else {
+                            files.add(candidate);
+                        }
                     }
                 }
                 return FileVisitResult.CONTINUE;
@@ -205,10 +209,10 @@ public class TestSplit {
                 final var declaration = compilationUnit.findFirst(ClassOrInterfaceDeclaration.class).orElseThrow();
                 final var className = declaration.getFullyQualifiedName().orElseThrow();
                 if (declaration.isInterface()) {
-                    LOG.info("Skipping test interface {}", className);
+                    LOG.info("Skipping interface {}", className);
                     continue;
                 } else if (declaration.isAbstract()) {
-                    LOG.info("Skipping abstract test class {}", className);
+                    LOG.info("Skipping abstract class {}", className);
                     continue;
                 }
                 final var hasSkipTestImport = compilationUnit.getImports()
