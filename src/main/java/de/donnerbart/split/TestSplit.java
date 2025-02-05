@@ -23,6 +23,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ public class TestSplit {
     private final @NotNull String glob;
     private final @Nullable String excludeGlob;
     private final @Nullable String junitGlob;
+    private final @NotNull FormatOption format;
     private final @NotNull Path workingDirectory;
     private final boolean debug;
     private final @NotNull Consumer<Integer> exitCodeConsumer;
@@ -52,6 +54,7 @@ public class TestSplit {
             final @NotNull String glob,
             final @Nullable String excludeGlob,
             final @Nullable String junitGlob,
+            final @NotNull FormatOption format,
             final @NotNull Path workingDirectory,
             final boolean debug,
             final @NotNull Consumer<Integer> exitCodeConsumer) {
@@ -60,12 +63,13 @@ public class TestSplit {
         this.glob = glob;
         this.excludeGlob = excludeGlob;
         this.junitGlob = junitGlob;
+        this.format = format;
         this.workingDirectory = workingDirectory;
         this.debug = debug;
         this.exitCodeConsumer = exitCodeConsumer;
     }
 
-    public @NotNull String run() throws Exception {
+    public @NotNull List<String> run() throws Exception {
         LOG.info("Split index {} (total: {})", splitIndex, splitTotal);
         LOG.info("Working directory: {}", workingDirectory);
         LOG.info("Glob: {}", glob);
@@ -75,6 +79,7 @@ public class TestSplit {
         if (junitGlob != null) {
             LOG.info("JUnit glob: {}", junitGlob);
         }
+        LOG.info("Output format: {}", format.getParameterValue());
         final var testPaths = getPaths(workingDirectory, glob, excludeGlob);
         final var classNames = fileToClassName(testPaths, exitCodeConsumer);
         if (classNames.isEmpty()) {
@@ -153,7 +158,11 @@ public class TestSplit {
                 .stream()
                 .sorted(Comparator.reverseOrder())
                 .map(TestCase::name)
-                .collect(Collectors.joining(" "));
+                .map(test -> switch (format) {
+                    case LIST -> test;
+                    case GRADLE -> "--tests " + test;
+                })
+                .collect(Collectors.toList());
     }
 
     private static @NotNull Set<Path> getPaths(

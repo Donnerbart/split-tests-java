@@ -39,10 +39,11 @@ public class TestSplitMain {
                 arguments.glob,
                 arguments.excludeGlob,
                 arguments.junitGlob,
+                arguments.format,
                 workingDirectory,
                 arguments.debug,
                 System::exit);
-        System.out.print(testSplit.run());
+        System.out.print(String.join(" ", testSplit.run()));
     }
 
     @VisibleForTesting

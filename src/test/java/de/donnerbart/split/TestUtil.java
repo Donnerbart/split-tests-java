@@ -21,7 +21,7 @@ class TestUtil {
             final @NotNull Set<PosixFilePermission> permissions) {
         try {
             final var resource = TestUtil.class.getResource("/" + resourceFileName);
-            assertThat(resource).isNotNull();
+            assertThat(resource).describedAs("Resource filename: %s", resourceFileName).isNotNull();
 
             final var path = targetDir.resolve(tmpFileName);
             Files.deleteIfExists(path);
