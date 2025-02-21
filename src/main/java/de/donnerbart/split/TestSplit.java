@@ -43,8 +43,8 @@ public class TestSplit {
     private final @NotNull String glob;
     private final @Nullable String excludeGlob;
     private final @Nullable String junitGlob;
-    private final @NotNull FormatOption format;
-    private final boolean useAverageTimeForNewTests;
+    private final @NotNull FormatOption formatOption;
+    private final @NotNull NewTestTimeOption newTestTimeOption;
     private final @NotNull Path workingDirectory;
     private final boolean debug;
     private final @NotNull Consumer<Integer> exitCodeConsumer;
@@ -55,8 +55,8 @@ public class TestSplit {
             final @NotNull String glob,
             final @Nullable String excludeGlob,
             final @Nullable String junitGlob,
-            final @NotNull FormatOption format,
-            final boolean useAverageTimeForNewTests,
+            final @NotNull FormatOption formatOption,
+            final @NotNull NewTestTimeOption newTestTimeOption,
             final @NotNull Path workingDirectory,
             final boolean debug,
             final @NotNull Consumer<Integer> exitCodeConsumer) {
@@ -65,8 +65,8 @@ public class TestSplit {
         this.glob = glob;
         this.excludeGlob = excludeGlob;
         this.junitGlob = junitGlob;
-        this.format = format;
-        this.useAverageTimeForNewTests = useAverageTimeForNewTests;
+        this.formatOption = formatOption;
+        this.newTestTimeOption = newTestTimeOption;
         this.workingDirectory = workingDirectory;
         this.debug = debug;
         this.exitCodeConsumer = exitCodeConsumer;
@@ -82,7 +82,7 @@ public class TestSplit {
         if (junitGlob != null) {
             LOG.info("JUnit glob: {}", junitGlob);
         }
-        LOG.info("Output format: {}", format);
+        LOG.info("Output format: {}", formatOption);
         final var testPaths = getPaths(workingDirectory, glob, excludeGlob);
         final var classNames = fileToClassName(testPaths, exitCodeConsumer);
         if (classNames.isEmpty()) {
@@ -119,11 +119,11 @@ public class TestSplit {
             }
         }
         // add tests without timing records
-        final var newTestTime = getNewTestTime(useAverageTimeForNewTests, testCases);
+        final var newTestTime = getNewTestTime(newTestTimeOption, testCases);
         classNames.forEach(className -> {
             final var testCase = new TestCase(className, newTestTime);
             if (testCases.add(testCase)) {
-                LOG.debug("Adding test {}", testCase.name());
+                LOG.debug("Adding test {} [estimated {}]", testCase.name(), formatTime(testCase.time()));
             }
         });
 
@@ -164,7 +164,7 @@ public class TestSplit {
                 .stream()
                 .sorted(Comparator.reverseOrder())
                 .map(TestCase::name)
-                .map(test -> switch (format) {
+                .map(test -> switch (formatOption) {
                     case LIST -> test;
                     case GRADLE -> "--tests " + test;
                 })
@@ -243,13 +243,29 @@ public class TestSplit {
     }
 
     private static double getNewTestTime(
-            final boolean useAverageTimeForNewTests,
+            final @NotNull NewTestTimeOption useAverageTimeForNewTests,
             final @NotNull Set<TestCase> testCases) {
-        if (!useAverageTimeForNewTests || testCases.isEmpty()) {
+        if (testCases.isEmpty()) {
             return 0d;
         }
-        final var averageTime = testCases.stream().mapToDouble(TestCase::time).sum() / (double) testCases.size();
-        LOG.info("Average test time is {}", formatTime(averageTime));
-        return averageTime;
+        return switch (useAverageTimeForNewTests) {
+            case ZERO -> 0d;
+            case AVERAGE -> {
+                final var averageTime =
+                        testCases.stream().mapToDouble(TestCase::time).sum() / (double) testCases.size();
+                LOG.info("Average test time is {}", formatTime(averageTime));
+                yield averageTime;
+            }
+            case MIN -> {
+                final var minTime = testCases.stream().mapToDouble(TestCase::time).min().orElseThrow();
+                LOG.info("Minimum test time is {}", formatTime(minTime));
+                yield minTime;
+            }
+            case MAX -> {
+                final var maxTime = testCases.stream().mapToDouble(TestCase::time).max().orElseThrow();
+                LOG.info("Maximum test time is {}", formatTime(maxTime));
+                yield maxTime;
+            }
+        };
     }
 }

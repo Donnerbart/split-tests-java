@@ -16,4 +16,14 @@ class ArgumentsTest {
         assertThat(converter.convert("gradle")).isEqualTo(FormatOption.GRADLE);
         assertThatThrownBy(() -> converter.convert("unknown")).isInstanceOf(NoSuchElementException.class);
     }
+
+    @Test
+    void newTestTimeOptionConvert() {
+        final var converter = new Arguments.NewTestTimeOptionConverter();
+        assertThat(converter.convert("zero")).isEqualTo(NewTestTimeOption.ZERO);
+        assertThat(converter.convert("average")).isEqualTo(NewTestTimeOption.AVERAGE);
+        assertThat(converter.convert("min")).isEqualTo(NewTestTimeOption.MIN);
+        assertThat(converter.convert("max")).isEqualTo(NewTestTimeOption.MAX);
+        assertThatThrownBy(() -> converter.convert("unknown")).isInstanceOf(NoSuchElementException.class);
+    }
 }

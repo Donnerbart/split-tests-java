@@ -34,11 +34,18 @@ class Arguments {
     @Nullable String junitGlob;
 
     @Parameter(names = {"--format", "-f"}, description = "The output format.", converter = FormatOptionConverter.class)
-    @NotNull FormatOption format = FormatOption.LIST;
+    @NotNull FormatOption formatOption = FormatOption.LIST;
 
+    @Deprecated
     @Parameter(names = {"--average-time", "-a"},
-               description = "Use the average test time from tests with JUnit reports for tests without JUnit reports.")
+               description = "This option is deprecated and should no longer be used. Use --newTestTimeOption instead.",
+               hidden = true)
     boolean useAverageTimeForNewTests = false;
+
+    @Parameter(names = {"--new-test-time", "-n"},
+               description = "Configures the calculation of the test time for tests without JUnit reports.",
+               converter = NewTestTimeOptionConverter.class)
+    @NotNull NewTestTimeOption newTestTimeOption = NewTestTimeOption.AVERAGE;
 
     @Parameter(names = {"--working-directory", "-w"},
                description = "The working directory. Defaults to the current directory.")
@@ -52,6 +59,17 @@ class Arguments {
         @Override
         public @NotNull FormatOption convert(final @NotNull String value) {
             return Arrays.stream(FormatOption.values())
+                    .filter(option -> option.toString().equals(value))
+                    .findFirst()
+                    .orElseThrow();
+        }
+    }
+
+    public static class NewTestTimeOptionConverter implements IStringConverter<NewTestTimeOption> {
+
+        @Override
+        public @NotNull NewTestTimeOption convert(final @NotNull String value) {
+            return Arrays.stream(NewTestTimeOption.values())
                     .filter(option -> option.toString().equals(value))
                     .findFirst()
                     .orElseThrow();

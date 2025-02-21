@@ -38,10 +38,6 @@ java -jar split-tests-java.jar --split-index 0 --split-total 10 --glob 'project/
 ```plain
 Usage: <main class> [options]
   Options:
-    --averageTime, -a
-      Use the average test time from tests with JUnit reports for tests 
-      without JUnit reports.
-      Default: false
     --debug, -d
       Enables debug logging.
       Default: false
@@ -60,6 +56,11 @@ Usage: <main class> [options]
     --junit-glob, -j
       Glob pattern to find JUnit reports. Make sure to single-quote the 
       pattern to avoid shell expansion.
+    --new-test-time, -n
+      Configures the calculation of the test time for tests without JUnit 
+      reports. 
+      Default: average
+      Possible Values: [zero, average, min, max]
   * --split-index, -i
       This test split index.
       Default: 0

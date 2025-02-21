@@ -39,8 +39,8 @@ public class TestSplitMain {
                 arguments.glob,
                 arguments.excludeGlob,
                 arguments.junitGlob,
-                arguments.format,
-                arguments.useAverageTimeForNewTests,
+                arguments.formatOption,
+                arguments.newTestTimeOption,
                 workingDirectory,
                 arguments.debug,
                 System::exit);
