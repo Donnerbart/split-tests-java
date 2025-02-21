@@ -141,18 +141,20 @@ public class TestSplit {
                 }));
 
         if (debug) {
-            final var fastestSplit = splits.stream().min(Comparator.naturalOrder()).orElseThrow();
-            LOG.debug("Fastest test plan is #{} with {} tests ({})",
-                    fastestSplit.formatIndex(),
-                    fastestSplit.tests().size(),
-                    formatTime(fastestSplit.totalRecordedTime()));
-            final var slowestSplit = splits.stream().max(Comparator.naturalOrder()).orElseThrow();
-            LOG.debug("Slowest test plan is #{} with {} tests ({})",
-                    slowestSplit.formatIndex(),
-                    slowestSplit.tests().size(),
-                    formatTime(slowestSplit.totalRecordedTime()));
-            LOG.debug("Difference between the fastest and slowest test plan: {}",
-                    formatTime(slowestSplit.totalRecordedTime() - fastestSplit.totalRecordedTime()));
+            if (splitTotal > 1) {
+                final var fastestSplit = splits.stream().min(Comparator.naturalOrder()).orElseThrow();
+                LOG.debug("Fastest test plan is #{} with {} tests ({})",
+                        fastestSplit.formatIndex(),
+                        fastestSplit.tests().size(),
+                        formatTime(fastestSplit.totalRecordedTime()));
+                final var slowestSplit = splits.stream().max(Comparator.naturalOrder()).orElseThrow();
+                LOG.debug("Slowest test plan is #{} with {} tests ({})",
+                        slowestSplit.formatIndex(),
+                        slowestSplit.tests().size(),
+                        formatTime(slowestSplit.totalRecordedTime()));
+                LOG.debug("Difference between the fastest and slowest test plan: {}",
+                        formatTime(slowestSplit.totalRecordedTime() - fastestSplit.totalRecordedTime()));
+            }
             LOG.debug("Test splits:");
             splits.stream().sorted(Comparator.reverseOrder()).forEach(n -> LOG.debug(n.toString()));
         }
