@@ -98,7 +98,8 @@ public class TestSplit {
             final var junitPaths = getPaths(workingDirectory, junitGlob, null);
             LOG.info("Found {} JUnit report files", junitPaths.size());
             if (!junitPaths.isEmpty()) {
-                var slowestTest = new TestCase("", 0d);
+                var fastestTest = new TestCase("", Double.MAX_VALUE);
+                var slowestTest = new TestCase("", Double.MIN_VALUE);
                 final var xmlMapper = new XmlMapper();
                 for (final var junitPath : junitPaths) {
                     final var testSuite = xmlMapper.readValue(junitPath.toFile(), TestSuite.class);
@@ -110,11 +111,15 @@ public class TestSplit {
                     } else {
                         LOG.info("Skipping test {} from JUnit report", testCase.name());
                     }
+                    if (testCase.time() < fastestTest.time()) {
+                        fastestTest = testCase;
+                    }
                     if (testCase.time() > slowestTest.time()) {
                         slowestTest = testCase;
                     }
                 }
                 LOG.debug("Found {} recorded test classes with time information", testCases.size());
+                LOG.debug("Fastest test class: {} ({})", fastestTest.name(), formatTime(fastestTest.time()));
                 LOG.debug("Slowest test class: {} ({})", slowestTest.name(), formatTime(slowestTest.time()));
             }
         }
