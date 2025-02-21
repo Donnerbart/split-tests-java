@@ -107,15 +107,15 @@ public class TestSplit {
                     if (classNames.contains(testCase.name())) {
                         if (testCases.add(testCase)) {
                             LOG.debug("Adding test {} [{}]", testCase.name(), formatTime(testCase.time()));
+                            if (testCase.time() < fastestTest.time()) {
+                                fastestTest = testCase;
+                            }
+                            if (testCase.time() > slowestTest.time()) {
+                                slowestTest = testCase;
+                            }
                         }
                     } else {
                         LOG.info("Skipping test {} from JUnit report", testCase.name());
-                    }
-                    if (testCase.time() < fastestTest.time()) {
-                        fastestTest = testCase;
-                    }
-                    if (testCase.time() > slowestTest.time()) {
-                        slowestTest = testCase;
                     }
                 }
                 LOG.debug("Found {} recorded test classes with time information", testCases.size());
