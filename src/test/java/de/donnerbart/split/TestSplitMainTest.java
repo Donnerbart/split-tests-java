@@ -152,4 +152,10 @@ class TestSplitMainTest {
         jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java");
         assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
     }
+
+    @Test
+    void calculateOptimalTotalSplit_withInvalidSplitIndex() throws Exception {
+        jCommander.parse("-i", "1", "-t", "1", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml");
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
+    }
 }

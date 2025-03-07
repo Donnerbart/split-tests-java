@@ -100,6 +100,10 @@ public class TestSplitMain {
             LOG.warn("The option --calculate-optimal-total-split requires --junit-glob");
             return 0;
         }
+        if (arguments.splitIndex != 0) {
+            LOG.debug("Skipping calculation of optimal test split (only done on the first index)");
+            return 0;
+        }
         LOG.info("Calculating optimal test split");
         var optimalSplit = 1;
         var lastSlowestSplit = Double.MAX_VALUE;
