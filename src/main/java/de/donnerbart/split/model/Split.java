@@ -1,10 +1,13 @@
 package de.donnerbart.split.model;
 
+import de.donnerbart.split.FormatOption;
 import de.donnerbart.split.util.FormatUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,12 +15,19 @@ import java.util.stream.Collectors;
 public class Split implements Comparable<Split> {
 
     private final @NotNull Set<TestCase> tests = new HashSet<>();
+    private final @NotNull FormatOption formatOption;
     private final int index;
 
     private double totalRecordedTime;
 
-    public Split(final int index) {
+    public Split(final @NotNull FormatOption formatOption, final int index) {
+        this.formatOption = formatOption;
         this.index = index;
+    }
+
+    public void add(final @NotNull TestCase testCase) {
+        tests.add(testCase);
+        totalRecordedTime += testCase.time();
     }
 
     public int index() {
@@ -28,12 +38,22 @@ public class Split implements Comparable<Split> {
         return String.format("%02d", index);
     }
 
-    public double totalRecordedTime() {
-        return totalRecordedTime;
-    }
-
     public @NotNull Set<TestCase> tests() {
         return tests;
+    }
+
+    public @NotNull List<String> sortedTests() {
+        return tests.stream() //
+                .sorted(Comparator.reverseOrder()) //
+                .map(TestCase::name) //
+                .map(test -> switch (formatOption) {
+                    case LIST -> test;
+                    case GRADLE -> "--tests " + test;
+                }).collect(Collectors.toList());
+    }
+
+    public double totalRecordedTime() {
+        return totalRecordedTime;
     }
 
     @Override
@@ -74,10 +94,5 @@ public class Split implements Comparable<Split> {
                 ", tests=" +
                 tests.stream().map(TestCase::name).collect(Collectors.joining(", ")) +
                 '}';
-    }
-
-    public void add(final @NotNull TestCase testCase) {
-        tests.add(testCase);
-        totalRecordedTime += testCase.time();
     }
 }

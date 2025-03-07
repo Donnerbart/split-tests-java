@@ -5,7 +5,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithName;
-import de.donnerbart.split.model.Split;
+import de.donnerbart.split.model.Splits;
 import de.donnerbart.split.model.TestCase;
 import de.donnerbart.split.model.TestSuite;
 import org.jetbrains.annotations.NotNull;
@@ -20,13 +20,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static de.donnerbart.split.util.FormatUtil.formatTime;
 
@@ -38,7 +35,6 @@ public class TestSplit {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(TestSplit.class);
 
-    private final int splitIndex;
     private final int splitTotal;
     private final @NotNull String glob;
     private final @Nullable String excludeGlob;
@@ -50,7 +46,6 @@ public class TestSplit {
     private final @NotNull Consumer<Integer> exitCodeConsumer;
 
     public TestSplit(
-            final int splitIndex,
             final int splitTotal,
             final @NotNull String glob,
             final @Nullable String excludeGlob,
@@ -60,7 +55,6 @@ public class TestSplit {
             final @NotNull Path workingDirectory,
             final boolean debug,
             final @NotNull Consumer<Integer> exitCodeConsumer) {
-        this.splitIndex = splitIndex;
         this.splitTotal = splitTotal;
         this.glob = glob;
         this.excludeGlob = excludeGlob;
@@ -72,17 +66,7 @@ public class TestSplit {
         this.exitCodeConsumer = exitCodeConsumer;
     }
 
-    public @NotNull List<String> run() throws Exception {
-        LOG.info("Split index {} (total: {})", splitIndex, splitTotal);
-        LOG.info("Working directory: {}", workingDirectory);
-        LOG.info("Glob: {}", glob);
-        if (excludeGlob != null) {
-            LOG.info("Exclude glob: {}", excludeGlob);
-        }
-        if (junitGlob != null) {
-            LOG.info("JUnit glob: {}", junitGlob);
-        }
-        LOG.info("Output format: {}", formatOption);
+    public @NotNull Splits run() throws Exception {
         final var testPaths = getPaths(workingDirectory, glob, excludeGlob);
         final var classNames = fileToClassName(testPaths, exitCodeConsumer);
         if (classNames.isEmpty()) {
@@ -134,25 +118,20 @@ public class TestSplit {
 
         // split tests
         LOG.debug("Splitting {} tests", testCases.size());
-        final var splits = new ArrayList<Split>(splitTotal);
-        for (int i = 0; i < splitTotal; i++) {
-            splits.add(new Split(i));
-        }
-        testCases.stream()
-                .sorted(Comparator.reverseOrder())
-                .forEach(testCase -> splits.stream().sorted().findFirst().ifPresent(split -> {
-                    LOG.debug("Adding test {} to split #{}", testCase.name(), split.index());
-                    split.add(testCase);
-                }));
+        final var splits = new Splits(splitTotal, formatOption);
+        testCases.stream().sorted(Comparator.reverseOrder()).forEach(testCase -> {
+            final var split = splits.add(testCase);
+            LOG.debug("Adding test {} to split #{}", testCase.name(), split.index());
+        });
 
         if (debug) {
             if (splitTotal > 1) {
-                final var fastestSplit = splits.stream().min(Comparator.naturalOrder()).orElseThrow();
+                final var fastestSplit = splits.getFastest();
                 LOG.debug("Fastest test plan is #{} with {} tests ({})",
                         fastestSplit.formatIndex(),
                         fastestSplit.tests().size(),
                         formatTime(fastestSplit.totalRecordedTime()));
-                final var slowestSplit = splits.stream().max(Comparator.naturalOrder()).orElseThrow();
+                final var slowestSplit = splits.getSlowest();
                 LOG.debug("Slowest test plan is #{} with {} tests ({})",
                         slowestSplit.formatIndex(),
                         slowestSplit.tests().size(),
@@ -161,19 +140,9 @@ public class TestSplit {
                         formatTime(slowestSplit.totalRecordedTime() - fastestSplit.totalRecordedTime()));
             }
             LOG.debug("Test splits:");
-            splits.stream().sorted(Comparator.reverseOrder()).forEach(n -> LOG.debug(n.toString()));
+            splits.forEach(split -> LOG.debug(split.toString()));
         }
-        final var split = splits.get(splitIndex);
-        LOG.info("This test split has {} tests ({})", split.tests().size(), formatTime(split.totalRecordedTime()));
-        return split.tests()
-                .stream()
-                .sorted(Comparator.reverseOrder())
-                .map(TestCase::name)
-                .map(test -> switch (formatOption) {
-                    case LIST -> test;
-                    case GRADLE -> "--tests " + test;
-                })
-                .collect(Collectors.toList());
+        return splits;
     }
 
     private static @NotNull Set<Path> getPaths(

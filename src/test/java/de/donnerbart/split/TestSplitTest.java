@@ -311,8 +311,7 @@ class TestSplitTest {
                 "WhitespaceClassDefinitionTest.java",
                 PERMISSIONS);
 
-        final var split = new TestSplit(0,
-                1,
+        final var split = new TestSplit(1,
                 "**/multiline-class-definition-project/**/*Test.java",
                 null,
                 null,
@@ -322,7 +321,9 @@ class TestSplitTest {
                 true,
                 exitCode::set);
 
-        assertThat(split.run()).containsExactly("de.donnerbart.example.WhitespaceClassDefinitionTest");
+        final var splits = split.run();
+        assertThat(splits.size()).isOne();
+        assertThat(splits.get(0).sortedTests()).containsExactly("de.donnerbart.example.WhitespaceClassDefinitionTest");
         assertThat(exitCode).hasNullValue();
     }
 
@@ -411,20 +412,20 @@ class TestSplitTest {
             final @NotNull NewTestTimeOption newTestTimeOption,
             final @NotNull Path workingDir,
             final @NotNull FormatOption formatOption) throws Exception {
-        final var splits = new ArrayList<List<String>>();
+        final var testSplit = new TestSplit(splitTotal,
+                glob,
+                "**/example-project/**/*Abstract*.java",
+                withJUnit ? "**/junit-reports/*.xml" : null,
+                formatOption,
+                newTestTimeOption,
+                workingDir,
+                true,
+                exitCode::set);
+        final var splits = testSplit.run();
+        final var result = new ArrayList<List<String>>(splitTotal);
         for (int index = 0; index < splitTotal; index++) {
-            final var split = new TestSplit(index,
-                    splitTotal,
-                    glob,
-                    "**/example-project/**/*Abstract*.java",
-                    withJUnit ? "**/junit-reports/*.xml" : null,
-                    formatOption,
-                    newTestTimeOption,
-                    workingDir,
-                    true,
-                    exitCode::set);
-            splits.add(split.run());
+            result.add(splits.get(index).sortedTests());
         }
-        return splits;
+        return result;
     }
 }
