@@ -52,7 +52,7 @@ class Arguments {
     @Nullable Path workingDirectory;
 
     @Parameter(names = {"--calculate-optimal-total-split", "-o"},
-               description = "Calculates the optimal test split. Logs a warning if --split-total does not match.")
+               description = "Calculates the optimal test split (only on the first split index). Logs a warning if --split-total does not match.")
     boolean calculateOptimalTotalSplit = false;
 
     @Parameter(names = {"--max-optimal-total-split-calculations", "-m"},

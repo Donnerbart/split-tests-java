@@ -39,8 +39,8 @@ java -jar split-tests-java.jar --split-index 0 --split-total 10 --glob 'project/
 Usage: <main class> [options]
   Options:
     --calculate-optimal-total-split, -o
-      Calculates the optimal test split. Logs a warning if --split-total does 
-      not match.
+      Calculates the optimal test split (only on the first split index). Logs 
+      a warning if --split-total does not match.
       Default: false
     --debug, -d
       Enables debug logging.
