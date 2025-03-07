@@ -56,6 +56,9 @@ public class TestSplitMain {
             LOG.info("JUnit glob: {}", arguments.junitGlob);
         }
         LOG.info("Output format: {}", arguments.formatOption);
+        if (arguments.calculateOptimalTotalSplit) {
+            calculateOptimalTotalSplit(arguments, workingDirectory);
+        }
         final var testSplit = new TestSplit(arguments.splitTotal,
                 arguments.glob,
                 arguments.excludeGlob,
@@ -63,6 +66,7 @@ public class TestSplitMain {
                 arguments.formatOption,
                 arguments.newTestTimeOption,
                 workingDirectory,
+                true,
                 arguments.debug,
                 System::exit);
         final var splits = testSplit.run();
@@ -87,5 +91,49 @@ public class TestSplitMain {
             return false;
         }
         return true;
+    }
+
+    @VisibleForTesting
+    static int calculateOptimalTotalSplit(final @NotNull Arguments arguments, final @NotNull Path workingDirectory)
+            throws Exception {
+        if (arguments.junitGlob == null) {
+            LOG.warn("The option --calculate-optimal-total-split requires --junit-glob");
+            return 0;
+        }
+        LOG.info("Calculating optimal test split");
+        var optimalSplit = 1;
+        var lastSlowestSplit = Double.MAX_VALUE;
+        while (true) {
+            final var testSplit = new TestSplit(optimalSplit,
+                    arguments.glob,
+                    arguments.excludeGlob,
+                    arguments.junitGlob,
+                    arguments.formatOption,
+                    arguments.newTestTimeOption,
+                    workingDirectory,
+                    false,
+                    false,
+                    System::exit);
+            final var splits = testSplit.run();
+            final var slowestSplit = splits.getSlowest().totalRecordedTime();
+            if (Double.compare(slowestSplit, lastSlowestSplit) == 0) {
+                optimalSplit--;
+                LOG.info("The optimal --total-split value for this test suite is {}", optimalSplit);
+                if (optimalSplit != arguments.splitTotal) {
+                    LOG.warn("The --split-total value of {} does not match the optimal split of {}",
+                            arguments.splitTotal,
+                            optimalSplit);
+                }
+                return optimalSplit;
+            }
+            LOG.debug("The slowest split with {} splits takes {}", optimalSplit, formatTime(slowestSplit));
+            if (optimalSplit++ >= arguments.maxOptimalTotalSplitCalculations) {
+                LOG.warn(
+                        "The option --max-optimal-total-split-calculations of {} is too low to calculate the optimal test split",
+                        arguments.maxOptimalTotalSplitCalculations);
+                return 0;
+            }
+            lastSlowestSplit = slowestSplit;
+        }
     }
 }

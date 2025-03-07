@@ -27,7 +27,7 @@ java -jar split-tests-java.jar --split-index 0 --split-total 10 --glob '**/*Test
 
 ### Using a JUnit report
 
-For example, check out the project into `project` and the JUnit reports into `reports`. 
+For example, check out the project into `project` and the JUnit reports into `reports`.
 
 ```
 java -jar split-tests-java.jar --split-index 0 --split-total 10 --glob 'project/**/*Test.java' --junit 'reports/**/*.xml'
@@ -38,6 +38,10 @@ java -jar split-tests-java.jar --split-index 0 --split-total 10 --glob 'project/
 ```plain
 Usage: <main class> [options]
   Options:
+    --calculate-optimal-total-split, -o
+      Calculates the optimal test split. Logs a warning if --split-total does 
+      not match.
+      Default: false
     --debug, -d
       Enables debug logging.
       Default: false
@@ -56,6 +60,9 @@ Usage: <main class> [options]
     --junit-glob, -j
       Glob pattern to find JUnit reports. Make sure to single-quote the 
       pattern to avoid shell expansion.
+    --max-optimal-total-split-calculations, -m
+      The maximum number of --calculate-optimal-total-split calculations.
+      Default: 50
     --new-test-time, -n
       Configures the calculation of the test time for tests without JUnit 
       reports. 
@@ -83,6 +90,7 @@ This tool is written in Java and uses Gradle as build tool.
 
 split-tests-java is inspired by [`split-test`](https://github.com/mtsmfm/split-test) for Ruby.
 
-In comparison to split-test, split-tests-java works with default JUnit reports.
+In comparison to `split-test`, `split-tests-java` works with standard JUnit reports without a `file` or `filepath`
+attribute.
 The output are also fully qualified class names instead of file names.
 This makes it compatible with default Java tooling.

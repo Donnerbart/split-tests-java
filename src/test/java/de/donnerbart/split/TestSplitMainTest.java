@@ -2,6 +2,7 @@ package de.donnerbart.split;
 
 import com.beust.jcommander.JCommander;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -24,12 +25,14 @@ class TestSplitMainTest {
     private final @NotNull JCommander jCommander = JCommander.newBuilder().addObject(arguments).build();
     private final @NotNull AtomicReference<Integer> exitCode = new AtomicReference<>();
 
+    private @NotNull Path projectFolder;
+
     @TempDir
     private @NotNull Path tmp;
 
-    @Test
-    void run() throws Exception {
-        final var projectFolder = tmp.resolve("example-project")
+    @BeforeEach
+    void setUp() throws Exception {
+        projectFolder = tmp.resolve("example-project")
                 .resolve("src")
                 .resolve("main")
                 .resolve("java")
@@ -56,7 +59,10 @@ class TestSplitMainTest {
                 "reports/TEST-de.donnerbart.example.SlowestTest.xml",
                 "TEST-de.donnerbart.example.SlowestTest.xml",
                 PERMISSIONS);
+    }
 
+    @Test
+    void run() throws Exception {
         final var splits = TestSplitMain.run(exitCode::set, new String[]{
                 "-i",
                 "0",
@@ -106,5 +112,44 @@ class TestSplitMainTest {
     void validateArguments_withInvalidWorkingDirectory() {
         jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java");
         assertThat(TestSplitMain.validateArguments(arguments, tmp.resolve("does-not-exist"))).isFalse();
+    }
+
+    @Test
+    void calculateOptimalTotalSplit() throws Exception {
+        copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
+        copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
+
+        jCommander.parse("-i", "0", "-t", "2", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml");
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(2);
+    }
+
+    @Test
+    void calculateOptimalTotalSplit_withMaxCalculations() throws Exception {
+        copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
+        copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
+
+        jCommander.parse("-i", "0", "-t", "4", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml", "-n", "max", "-m", "5");
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(4);
+    }
+
+    @Test
+    void calculateOptimalTotalSplit_withTooLowMaxCalculations() throws Exception {
+        copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
+        copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
+
+        jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml", "-n", "max", "-m", "4");
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
+    }
+
+    @Test
+    void calculateOptimalTotalSplit_withTotalSplitMismatch() throws Exception {
+        jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml");
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(2);
+    }
+
+    @Test
+    void calculateOptimalTotalSplit_withoutJUnitGlob() throws Exception {
+        jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java");
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
     }
 }

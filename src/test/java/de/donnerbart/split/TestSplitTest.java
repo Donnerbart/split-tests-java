@@ -319,6 +319,7 @@ class TestSplitTest {
                 NewTestTimeOption.ZERO,
                 projectFolder,
                 true,
+                true,
                 exitCode::set);
 
         final var splits = split.run();
@@ -419,6 +420,7 @@ class TestSplitTest {
                 formatOption,
                 newTestTimeOption,
                 workingDir,
+                true,
                 true,
                 exitCode::set);
         final var splits = testSplit.run();

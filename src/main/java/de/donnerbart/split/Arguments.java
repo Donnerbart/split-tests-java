@@ -51,6 +51,14 @@ class Arguments {
                description = "The working directory. Defaults to the current directory.")
     @Nullable Path workingDirectory;
 
+    @Parameter(names = {"--calculate-optimal-total-split", "-o"},
+               description = "Calculates the optimal test split. Logs a warning if --split-total does not match.")
+    boolean calculateOptimalTotalSplit = false;
+
+    @Parameter(names = {"--max-optimal-total-split-calculations", "-m"},
+               description = "The maximum number of --calculate-optimal-total-split calculations.")
+    int maxOptimalTotalSplitCalculations = 50;
+
     @Parameter(names = {"--debug", "-d"}, description = "Enables debug logging.")
     boolean debug = false;
 
