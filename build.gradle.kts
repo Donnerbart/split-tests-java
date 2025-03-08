@@ -1,6 +1,7 @@
 plugins {
     application
     java
+    alias(libs.plugins.gradle.git.properties)
     alias(libs.plugins.shadow)
 }
 
@@ -34,6 +35,7 @@ dependencies {
 // ********** distribution **********
 
 tasks.shadowJar {
+    dependsOn(tasks.generateGitProperties)
     mergeServiceFiles()
     archiveBaseName = "split-tests-java"
     archiveClassifier = ""
@@ -58,4 +60,17 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+// ********** git properties **********
+
+gitProperties {
+    dotGitDirectory = project.rootProject.layout.projectDirectory.dir(".git")
+    gitPropertiesName = "split-tests-java.properties"
+    keys = listOf("git.branch", "git.commit.id", "git.commit.id.abbrev", "git.commit.time")
+    customProperty("version", version)
+    extProperty = "gitProps"
+}
+tasks.generateGitProperties {
+    outputs.upToDateWhen { false }
 }

@@ -12,7 +12,11 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 import static de.donnerbart.split.util.FormatUtil.formatTime;
@@ -46,6 +50,12 @@ public class TestSplitMain {
         if (!validateArguments(arguments, workingDirectory)) {
             exitConsumer.accept(1);
         }
+        final var properties = readProperties("split-tests-java.properties");
+        LOG.info("split-tests-java {} (commit: {} on branch: {}) built on {}",
+                properties.getProperty("version", "unknown"),
+                properties.getProperty("git.commit.id.abbrev", "unknown"),
+                properties.getProperty("git.branch", "unknown"),
+                getBuiltTime(properties.getProperty("git.commit.time", "unknown")));
         LOG.info("Split index {} (total: {})", arguments.splitIndex, arguments.splitTotal);
         LOG.info("Working directory: {}", workingDirectory);
         LOG.info("Glob: {}", arguments.glob);
@@ -138,6 +148,26 @@ public class TestSplitMain {
                 return 0;
             }
             lastSlowestSplit = slowestSplit;
+        }
+    }
+
+    @VisibleForTesting
+    static @NotNull Properties readProperties(final @NotNull String resourceFile) throws Exception {
+        final var properties = new Properties();
+        try (final var inputStream = TestSplitMain.class.getClassLoader().getResourceAsStream(resourceFile)) {
+            if (inputStream != null) {
+                properties.load(inputStream);
+            }
+        }
+        return properties;
+    }
+
+    @VisibleForTesting
+    static @NotNull Date getBuiltTime(final @NotNull String dateString) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
+        } catch (final Exception e) {
+            return Date.from(Instant.EPOCH);
         }
     }
 }
