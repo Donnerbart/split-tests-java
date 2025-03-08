@@ -317,7 +317,7 @@ class TestSplitTest {
                 NewTestTimeOption.ZERO,
                 tmp,
                 exitCode::set);
-        final var split = new TestSplit(testLoader.load(), 1, FormatOption.LIST, true, true);
+        final var split = new TestSplit(testLoader.load(), 1, FormatOption.LIST, false);
 
         final var splits = split.split();
         assertThat(splits.size()).isOne();
@@ -416,7 +416,7 @@ class TestSplitTest {
                 newTestTimeOption,
                 workingDir,
                 exitCode::set);
-        final var testSplit = new TestSplit(testLoader.load(), splitTotal, formatOption, true, true);
+        final var testSplit = new TestSplit(testLoader.load(), splitTotal, formatOption, true);
         final var splits = testSplit.split();
         final var result = new ArrayList<List<String>>(splitTotal);
         for (int index = 0; index < splitTotal; index++) {

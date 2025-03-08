@@ -78,8 +78,7 @@ public class TestSplitMain {
         if (arguments.calculateOptimalTotalSplit) {
             calculateOptimalTotalSplit(arguments, testCases);
         }
-        final var testSplit =
-                new TestSplit(testCases, arguments.splitTotal, arguments.formatOption, true, arguments.debug);
+        final var testSplit = new TestSplit(testCases, arguments.splitTotal, arguments.formatOption, arguments.debug);
         final var splits = testSplit.split();
         final var split = splits.get(arguments.splitIndex);
         LOG.info("This test split has {} tests ({})", split.tests().size(), formatTime(split.totalRecordedTime()));
@@ -118,7 +117,7 @@ public class TestSplitMain {
         var optimalSplit = 1;
         var lastSlowestSplit = Double.MAX_VALUE;
         while (true) {
-            final var testSplit = new TestSplit(testCases, optimalSplit, arguments.formatOption, false, false);
+            final var testSplit = new TestSplit(testCases, optimalSplit, arguments.formatOption, false);
             final var splits = testSplit.split();
             final var slowestSplit = splits.getSlowest().totalRecordedTime();
             if (Double.compare(slowestSplit, lastSlowestSplit) == 0) {

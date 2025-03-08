@@ -107,7 +107,7 @@ public class TestLoader {
         return testCases;
     }
 
-    private @NotNull Set<Path> getPaths(
+    private static @NotNull Set<Path> getPaths(
             final @NotNull Path rootPath,
             final @NotNull String glob,
             final @Nullable String excludeGlob) throws Exception {
@@ -140,7 +140,7 @@ public class TestLoader {
         return files;
     }
 
-    private @NotNull Set<String> fileToClassName(
+    private static @NotNull Set<String> fileToClassName(
             final @NotNull Set<Path> testPaths,
             final @NotNull Consumer<Integer> exitCodeConsumer) {
         final var javaParser = new JavaParser();
@@ -161,13 +161,15 @@ public class TestLoader {
                         .stream()
                         .map(NodeWithName::getNameAsString)
                         .anyMatch(SKIP_TEST_IMPORTS::contains);
-                final var hasSkipTestAnnotation = declaration.getAnnotations()
-                        .stream()
-                        .map(AnnotationExpr::getNameAsString)
-                        .anyMatch(SKIP_TEST_ANNOTATIONS::contains);
-                if (hasSkipTestImport && hasSkipTestAnnotation) {
-                    LOG.info("Skipping disabled test class {}", className);
-                    continue;
+                if (hasSkipTestImport) {
+                    final var hasSkipTestAnnotation = declaration.getAnnotations()
+                            .stream()
+                            .map(AnnotationExpr::getNameAsString)
+                            .anyMatch(SKIP_TEST_ANNOTATIONS::contains);
+                    if (hasSkipTestAnnotation) {
+                        LOG.info("Skipping disabled test class {}", className);
+                        continue;
+                    }
                 }
                 classNames.add(className);
             } catch (final Exception e) {
@@ -178,7 +180,7 @@ public class TestLoader {
         return classNames;
     }
 
-    private double getNewTestTime(
+    private static double getNewTestTime(
             final @NotNull NewTestTimeOption useAverageTimeForNewTests,
             final @NotNull Set<TestCase> testCases) {
         if (testCases.isEmpty()) {
