@@ -9,6 +9,8 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -128,7 +130,18 @@ class TestSplitMainTest {
         copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
 
-        jCommander.parse("-i", "0", "-t", "4", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml", "-n", "max", "-m", "5");
+        jCommander.parse("-i",
+                "0",
+                "-t",
+                "4",
+                "-g",
+                "**/*Test.java",
+                "-j",
+                "**/junit-reports/*.xml",
+                "-n",
+                "max",
+                "-m",
+                "5");
         assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(4);
     }
 
@@ -137,7 +150,18 @@ class TestSplitMainTest {
         copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
 
-        jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml", "-n", "max", "-m", "4");
+        jCommander.parse("-i",
+                "0",
+                "-t",
+                "1",
+                "-g",
+                "**/*Test.java",
+                "-j",
+                "**/junit-reports/*.xml",
+                "-n",
+                "max",
+                "-m",
+                "4");
         assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
     }
 
@@ -157,5 +181,33 @@ class TestSplitMainTest {
     void calculateOptimalTotalSplit_withInvalidSplitIndex() throws Exception {
         jCommander.parse("-i", "1", "-t", "1", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml");
         assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
+    }
+
+    @Test
+    void readProperties() throws Exception {
+        final var properties = TestSplitMain.readProperties("split-tests-java-test.properties");
+        assertThat(properties).isNotNull();
+        assertThat(properties.getProperty("git.commit.time")).isEqualTo("2023-01-01T00:01:02+0000");
+        assertThat(properties.getProperty("git.commit.id")).isEqualTo("4c204731e327bc2e06d2a1b02f46e4195c210d0e");
+        assertThat(properties.getProperty("git.commit.id.abbrev")).isEqualTo("4c20473");
+        assertThat(properties.getProperty("git.branch")).isEqualTo("master");
+        assertThat(properties.getProperty("version")).isEqualTo("1.2.3-SNAPSHOT");
+    }
+
+    @Test
+    void readProperties_whenFileNotFound() throws Exception {
+        final var properties = TestSplitMain.readProperties("not-found.properties");
+        assertThat(properties).isNotNull();
+        assertThat(properties).isEmpty();
+    }
+
+    @Test
+    void getBuiltTime() {
+        assertThat(TestSplitMain.getBuiltTime("2023-01-01T00:01:02+0000")).isEqualTo("2023-01-01T00:01:02+0000");
+    }
+
+    @Test
+    void getBuiltTime_whenTimeNotParseable() {
+        assertThat(TestSplitMain.getBuiltTime("")).isEqualTo(Date.from(Instant.EPOCH));
     }
 }
