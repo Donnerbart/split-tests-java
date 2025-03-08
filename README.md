@@ -1,4 +1,5 @@
-[![CI Check](https://github.com/Donnerbart/split-tests-java/actions/workflows/check.yml/badge.svg)](https://github.com/Donnerbart/split-tests-java/actions/workflows/check.yml)
+[![Unit tests](https://github.com/Donnerbart/split-tests-java/actions/workflows/unit-test.yml/badge.svg)](https://github.com/Donnerbart/split-tests-java/actions/workflows/unit-test.yml)
+[![Integration tests](https://github.com/Donnerbart/split-tests-java/actions/workflows/integration-test.yml/badge.svg)](https://github.com/Donnerbart/split-tests-java/actions/workflows/integration-test.yml)
 [![Release](https://github.com/Donnerbart/split-tests-java/actions/workflows/release.yml/badge.svg)](https://github.com/Donnerbart/split-tests-java/actions/workflows/release.yml)
 
 # Split Tests Java
