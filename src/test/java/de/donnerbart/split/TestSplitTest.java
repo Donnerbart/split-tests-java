@@ -72,7 +72,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withoutJUnit_withOneSplit() throws Exception {
+    void split_withoutJUnit_withOneSplit() throws Exception {
         final var splits = splitTests(1, false, NewTestTimeOption.ZERO);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.FastTest",
@@ -84,7 +84,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withoutJUnit_withTwoSplits() throws Exception {
+    void split_withoutJUnit_withTwoSplits() throws Exception {
         final var splits = splitTests(2, false, NewTestTimeOption.ZERO);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.FastTest",
@@ -95,7 +95,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withoutJUnit_withThreeSplits() throws Exception {
+    void split_withoutJUnit_withThreeSplits() throws Exception {
         final var splits = splitTests(3, false, NewTestTimeOption.ZERO);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.FastTest", "de.donnerbart.example.SlowTest"),
@@ -105,7 +105,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withoutJUnit_withThreeSplits_withGradleFormat() throws Exception {
+    void split_withoutJUnit_withThreeSplits_withGradleFormat() throws Exception {
         final var splits = splitTests(3,
                 false,
                 "**/example-project/**/*Test.java",
@@ -120,7 +120,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withOneSplit() throws Exception {
+    void split_withJUnit_withOneSplit() throws Exception {
         final var splits = splitTests(1, true, NewTestTimeOption.ZERO);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
@@ -132,7 +132,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withTwoSplits() throws Exception {
+    void split_withJUnit_withTwoSplits() throws Exception {
         final var splits = splitTests(2, true, NewTestTimeOption.ZERO);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -144,7 +144,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withThreeSplits() throws Exception {
+    void split_withJUnit_withThreeSplits() throws Exception {
         final var splits = splitTests(3, true, NewTestTimeOption.ZERO);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -156,7 +156,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withFourSplits() throws Exception {
+    void split_withJUnit_withFourSplits() throws Exception {
         final var splits = splitTests(4, true, NewTestTimeOption.ZERO);
         assertThat(splits).hasSize(4).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -167,7 +167,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withAverageTestTime_withOneSplit() throws Exception {
+    void split_withJUnit_withAverageTestTime_withOneSplit() throws Exception {
         final var splits = splitTests(1, true, NewTestTimeOption.AVERAGE);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
@@ -179,7 +179,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withAverageTestTime_withTwoSplits() throws Exception {
+    void split_withJUnit_withAverageTestTime_withTwoSplits() throws Exception {
         final var splits = splitTests(2, true, NewTestTimeOption.AVERAGE);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -191,7 +191,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withAverageTestTime_withThreeSplits() throws Exception {
+    void split_withJUnit_withAverageTestTime_withThreeSplits() throws Exception {
         final var splits = splitTests(3, true, NewTestTimeOption.AVERAGE);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -201,7 +201,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withAverageTestTime_withFourSplits() throws Exception {
+    void split_withJUnit_withAverageTestTime_withFourSplits() throws Exception {
         final var splits = splitTests(4, true, NewTestTimeOption.AVERAGE);
         assertThat(splits).hasSize(4).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -212,7 +212,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withMinTestTime_withOneSplit() throws Exception {
+    void split_withJUnit_withMinTestTime_withOneSplit() throws Exception {
         final var splits = splitTests(1, true, NewTestTimeOption.MIN);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
@@ -224,7 +224,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withMinTestTime_withTwoSplits() throws Exception {
+    void split_withJUnit_withMinTestTime_withTwoSplits() throws Exception {
         final var splits = splitTests(2, true, NewTestTimeOption.MIN);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -236,7 +236,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withMinTestTime_withThreeSplits() throws Exception {
+    void split_withJUnit_withMinTestTime_withThreeSplits() throws Exception {
         final var splits = splitTests(3, true, NewTestTimeOption.MIN);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -248,7 +248,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withMinTestTime_withFourSplits() throws Exception {
+    void split_withJUnit_withMinTestTime_withFourSplits() throws Exception {
         final var splits = splitTests(4, true, NewTestTimeOption.MIN);
         assertThat(splits).hasSize(4).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
@@ -259,7 +259,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withMaxTestTime_withOneSplit() throws Exception {
+    void split_withJUnit_withMaxTestTime_withOneSplit() throws Exception {
         final var splits = splitTests(1, true, NewTestTimeOption.MAX);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest",
@@ -271,7 +271,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withMaxTestTime_withTwoSplits() throws Exception {
+    void split_withJUnit_withMaxTestTime_withTwoSplits() throws Exception {
         final var splits = splitTests(2, true, NewTestTimeOption.MAX);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowestTest"),
@@ -282,7 +282,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withMaxTestTime_withThreeSplits() throws Exception {
+    void split_withJUnit_withMaxTestTime_withThreeSplits() throws Exception {
         final var splits = splitTests(3, true, NewTestTimeOption.MAX);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowTest"),
@@ -292,7 +292,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_withJUnit_withMaxTestTime_withFourSplits() throws Exception {
+    void split_withJUnit_withMaxTestTime_withFourSplits() throws Exception {
         final var splits = splitTests(4, true, NewTestTimeOption.MAX);
         assertThat(splits).hasSize(4).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest"),
@@ -303,7 +303,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_whitespaceClassDefinition() throws Exception {
+    void split_whitespaceClassDefinition() throws Exception {
         final var projectFolder =
                 tmp.resolve("multiline-class-definition-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder,
@@ -311,25 +311,22 @@ class TestSplitTest {
                 "WhitespaceClassDefinitionTest.java",
                 PERMISSIONS);
 
-        final var split = new TestSplit(1,
-                "**/multiline-class-definition-project/**/*Test.java",
+        final var testLoader = new TestLoader("**/multiline-class-definition-project/**/*Test.java",
                 null,
                 null,
-                FormatOption.LIST,
                 NewTestTimeOption.ZERO,
-                projectFolder,
-                true,
-                true,
+                tmp,
                 exitCode::set);
+        final var split = new TestSplit(testLoader.load(), 1, FormatOption.LIST, true, true);
 
-        final var splits = split.run();
+        final var splits = split.split();
         assertThat(splits.size()).isOne();
         assertThat(splits.get(0).sortedTests()).containsExactly("de.donnerbart.example.WhitespaceClassDefinitionTest");
         assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void run_thirdPartyLibrary() throws Exception {
+    void split_thirdPartyLibrary() throws Exception {
         final var projectFolder =
                 tmp.resolve("third-party-library-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder,
@@ -348,7 +345,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_noPackage() throws Exception {
+    void split_noPackage() throws Exception {
         final var projectFolder = tmp.resolve("no-package-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder, "tests/NoPackageTest.java", "NoPackageTest.java", PERMISSIONS);
 
@@ -364,7 +361,7 @@ class TestSplitTest {
 
     @ParameterizedTest
     @EnumSource(NewTestTimeOption.class)
-    void run_noTests(final @NotNull NewTestTimeOption newTestTimeOption) throws Exception {
+    void split_noTests(final @NotNull NewTestTimeOption newTestTimeOption) throws Exception {
         final var projectFolder = tmp.resolve("no-tests-project").resolve("src").resolve("main").resolve("java");
         Files.createDirectories(projectFolder);
 
@@ -379,7 +376,7 @@ class TestSplitTest {
     }
 
     @Test
-    void run_noClassName() throws Exception {
+    void split_noClassName() throws Exception {
         final var projectFolder = tmp.resolve("no-classname-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder, "tests/NoClassNameTest.java", "NoClassNameTest.java", PERMISSIONS);
 
@@ -413,17 +410,14 @@ class TestSplitTest {
             final @NotNull NewTestTimeOption newTestTimeOption,
             final @NotNull Path workingDir,
             final @NotNull FormatOption formatOption) throws Exception {
-        final var testSplit = new TestSplit(splitTotal,
-                glob,
+        final var testLoader = new TestLoader(glob,
                 "**/example-project/**/*Abstract*.java",
                 withJUnit ? "**/junit-reports/*.xml" : null,
-                formatOption,
                 newTestTimeOption,
                 workingDir,
-                true,
-                true,
                 exitCode::set);
-        final var splits = testSplit.run();
+        final var testSplit = new TestSplit(testLoader.load(), splitTotal, formatOption, true, true);
+        final var splits = testSplit.split();
         final var result = new ArrayList<List<String>>(splitTotal);
         for (int index = 0; index < splitTotal; index++) {
             result.add(splits.get(index).sortedTests());

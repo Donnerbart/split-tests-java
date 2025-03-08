@@ -3,6 +3,7 @@ package de.donnerbart.split;
 import ch.qos.logback.classic.Level;
 import com.beust.jcommander.JCommander;
 import de.donnerbart.split.model.Splits;
+import de.donnerbart.split.model.TestCase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static de.donnerbart.split.util.FormatUtil.formatTime;
@@ -66,20 +68,19 @@ public class TestSplitMain {
             LOG.info("JUnit glob: {}", arguments.junitGlob);
         }
         LOG.info("Output format: {}", arguments.formatOption);
-        if (arguments.calculateOptimalTotalSplit) {
-            calculateOptimalTotalSplit(arguments, workingDirectory);
-        }
-        final var testSplit = new TestSplit(arguments.splitTotal,
-                arguments.glob,
+        final var testLoader = new TestLoader(arguments.glob,
                 arguments.excludeGlob,
                 arguments.junitGlob,
-                arguments.formatOption,
                 arguments.newTestTimeOption,
                 workingDirectory,
-                true,
-                arguments.debug,
                 System::exit);
-        final var splits = testSplit.run();
+        final var testCases = testLoader.load();
+        if (arguments.calculateOptimalTotalSplit) {
+            calculateOptimalTotalSplit(arguments, testCases);
+        }
+        final var testSplit =
+                new TestSplit(testCases, arguments.splitTotal, arguments.formatOption, true, arguments.debug);
+        final var splits = testSplit.split();
         final var split = splits.get(arguments.splitIndex);
         LOG.info("This test split has {} tests ({})", split.tests().size(), formatTime(split.totalRecordedTime()));
         System.out.print(String.join(" ", splits.get(arguments.splitIndex).sortedTests()));
@@ -104,8 +105,7 @@ public class TestSplitMain {
     }
 
     @VisibleForTesting
-    static int calculateOptimalTotalSplit(final @NotNull Arguments arguments, final @NotNull Path workingDirectory)
-            throws Exception {
+    static int calculateOptimalTotalSplit(final @NotNull Arguments arguments, final @NotNull Set<TestCase> testCases) {
         if (arguments.junitGlob == null) {
             LOG.warn("The option --calculate-optimal-total-split requires --junit-glob");
             return 0;
@@ -118,17 +118,8 @@ public class TestSplitMain {
         var optimalSplit = 1;
         var lastSlowestSplit = Double.MAX_VALUE;
         while (true) {
-            final var testSplit = new TestSplit(optimalSplit,
-                    arguments.glob,
-                    arguments.excludeGlob,
-                    arguments.junitGlob,
-                    arguments.formatOption,
-                    arguments.newTestTimeOption,
-                    workingDirectory,
-                    false,
-                    false,
-                    System::exit);
-            final var splits = testSplit.run();
+            final var testSplit = new TestSplit(testCases, optimalSplit, arguments.formatOption, false, false);
+            final var splits = testSplit.split();
             final var slowestSplit = splits.getSlowest().totalRecordedTime();
             if (Double.compare(slowestSplit, lastSlowestSplit) == 0) {
                 optimalSplit--;

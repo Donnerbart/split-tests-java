@@ -1,6 +1,7 @@
 package de.donnerbart.split;
 
 import com.beust.jcommander.JCommander;
+import de.donnerbart.split.model.TestCase;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -122,7 +123,7 @@ class TestSplitMainTest {
         copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
 
         jCommander.parse("-i", "0", "-t", "2", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml");
-        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(2);
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, getTestCases())).isEqualTo(2);
     }
 
     @Test
@@ -142,7 +143,7 @@ class TestSplitMainTest {
                 "max",
                 "-m",
                 "5");
-        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(4);
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, getTestCases())).isEqualTo(4);
     }
 
     @Test
@@ -162,25 +163,25 @@ class TestSplitMainTest {
                 "max",
                 "-m",
                 "4");
-        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, getTestCases())).isEqualTo(0);
     }
 
     @Test
     void calculateOptimalTotalSplit_withTotalSplitMismatch() throws Exception {
         jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml");
-        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(2);
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, getTestCases())).isEqualTo(2);
     }
 
     @Test
     void calculateOptimalTotalSplit_withoutJUnitGlob() throws Exception {
         jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java");
-        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, getTestCases())).isEqualTo(0);
     }
 
     @Test
     void calculateOptimalTotalSplit_withInvalidSplitIndex() throws Exception {
         jCommander.parse("-i", "1", "-t", "1", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml");
-        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, tmp)).isEqualTo(0);
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, getTestCases())).isEqualTo(0);
     }
 
     @Test
@@ -209,5 +210,14 @@ class TestSplitMainTest {
     @Test
     void getBuiltTime_whenTimeNotParseable() {
         assertThat(TestSplitMain.getBuiltTime("")).isEqualTo(Date.from(Instant.EPOCH));
+    }
+
+    private @NotNull Set<TestCase> getTestCases() throws Exception {
+        return new TestLoader(arguments.glob,
+                arguments.excludeGlob,
+                arguments.junitGlob,
+                arguments.newTestTimeOption,
+                tmp,
+                exitCode::set).load();
     }
 }
