@@ -62,7 +62,7 @@ jobs:
           split-index: ${{ matrix.split-index }}
           split-total: ${{ env.split-total }}
           glob: '**/src/test/resources/tests/*Test.java'
-          exclude-glob: '**/NoClassNameTest.java'
+          exclude-glob: '**/{NoClassNameTest,UnreadableTest,UnreadableNestedTest}.java'
           junit-glob: '**/src/test/resources/reports/*.xml'
           format: 'list'
           new-test-time: 'average'
@@ -79,13 +79,13 @@ jobs:
             EXPECTED="de.donnerbart.example.SlowestTest"
             ;;
             "1")
-            EXPECTED="NoPackageTest de.donnerbart.example.ThirdPartyLibraryTest"
+            EXPECTED="NoPackageTest de.donnerbart.example.NoTimingTwoTest de.donnerbart.example.SlowTest"
             ;;
             "2")
-            EXPECTED="de.donnerbart.example.NoTimingOneTest de.donnerbart.example.WhitespaceClassDefinitionTest"
+            EXPECTED="de.donnerbart.example.IgnoreImportTest de.donnerbart.example.ThirdPartyLibraryTest de.donnerbart.example.FastTest"
             ;;
             "3")
-            EXPECTED="de.donnerbart.example.NoTimingTwoTest de.donnerbart.example.SlowTest de.donnerbart.example.FastTest"
+            EXPECTED="de.donnerbart.example.NoTimingOneTest de.donnerbart.example.WhitespaceClassDefinitionTest"
             ;;
             *)
             echo "Unexpected split index"
