@@ -1,427 +1,278 @@
 package de.donnerbart.split;
 
+import de.donnerbart.split.model.TestCase;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
-import static de.donnerbart.split.TestUtil.copyResourceToTarget;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TestSplitTest {
 
-    private static final @NotNull Set<PosixFilePermission> PERMISSIONS = Set.of(OWNER_READ, OWNER_WRITE);
-
-    @TempDir
-    private @NotNull Path tmp;
-
-    private final @NotNull AtomicReference<Integer> exitCode = new AtomicReference<>();
+    private final @NotNull Set<TestCase> testCasesWithoutTiming = new HashSet<>();
+    private final @NotNull Set<TestCase> testCasesWithTiming = new HashSet<>();
 
     @BeforeEach
-    void setUp() throws Exception {
-        final var projectFolder = tmp.resolve("example-project")
-                .resolve("src")
-                .resolve("main")
-                .resolve("java")
-                .resolve("de")
-                .resolve("donnerbart")
-                .resolve("example");
-        Files.createDirectories(projectFolder);
-        // ignored tests
-        copyResourceToTarget(projectFolder, "tests/AbstractTest.java", "AbstractTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/BaseTest.java", "BaseTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/DisabledTest.java", "DisabledTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/IgnoreTest.java", "IgnoreTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/InterfaceTest.java", "InterfaceTest.java", PERMISSIONS);
-        // valid tests
-        copyResourceToTarget(projectFolder, "tests/FastTest.java", "FastTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/SlowTest.java", "SlowTest.java", PERMISSIONS);
-        copyResourceToTarget(projectFolder, "tests/SlowestTest.java", "SlowestTest.java", PERMISSIONS);
+    void setUp() {
+        testCasesWithoutTiming.add(new TestCase("de.donnerbart.example.FastTest", 0d));
+        testCasesWithoutTiming.add(new TestCase("de.donnerbart.example.SlowTest", 0d));
+        testCasesWithoutTiming.add(new TestCase("de.donnerbart.example.SlowestTest", 0d));
+        testCasesWithoutTiming.add(new TestCase("de.donnerbart.example.NoTimingOneTest", 0d));
+        testCasesWithoutTiming.add(new TestCase("de.donnerbart.example.NoTimingTwoTest", 0d));
 
-        final var reportFolder = tmp.resolve("junit-reports");
-        copyResourceToTarget(reportFolder,
-                "reports/TEST-de.donnerbart.example.DeletedTest.xml",
-                "TEST-de.donnerbart.example.DeletedTest.xml",
-                PERMISSIONS);
-        copyResourceToTarget(reportFolder,
-                "reports/TEST-de.donnerbart.example.FastTest.xml",
-                "TEST-de.donnerbart.example.FastTest.xml",
-                PERMISSIONS);
-        copyResourceToTarget(reportFolder,
-                "reports/TEST-de.donnerbart.example.SlowTest.xml",
-                "TEST-de.donnerbart.example.SlowTest.xml",
-                PERMISSIONS);
-        copyResourceToTarget(reportFolder,
-                "reports/TEST-de.donnerbart.example.SlowestTest.xml",
-                "TEST-de.donnerbart.example.SlowestTest.xml",
-                PERMISSIONS);
+        testCasesWithTiming.add(new TestCase("de.donnerbart.example.FastTest", 2.374d));
+        testCasesWithTiming.add(new TestCase("de.donnerbart.example.SlowTest", 12.386d));
+        testCasesWithTiming.add(new TestCase("de.donnerbart.example.SlowestTest", 153.457d));
+        testCasesWithTiming.add(new TestCase("de.donnerbart.example.NoTimingOneTest", 0d));
+        testCasesWithTiming.add(new TestCase("de.donnerbart.example.NoTimingTwoTest", 0d));
     }
 
     @Test
-    void split_withoutJUnit_withOneSplit() throws Exception {
-        final var splits = splitTests(1, false, NewTestTimeOption.ZERO);
+    void split_noTests() {
+        final var splits = splitTests(Set.of(), 1, FormatOption.LIST);
+        assertThat(splits).hasSize(1).containsExactly(List.of());
+    }
+
+    @Test
+    void split_withoutTiming_withOneSplit() {
+        final var splits = splitTests(testCasesWithoutTiming, 1, FormatOption.LIST);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.SlowestTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withoutJUnit_withTwoSplits() throws Exception {
-        final var splits = splitTests(2, false, NewTestTimeOption.ZERO);
+    void split_withoutTiming_withTwoSplits() {
+        final var splits = splitTests(testCasesWithoutTiming, 2, FormatOption.LIST);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withoutJUnit_withThreeSplits() throws Exception {
-        final var splits = splitTests(3, false, NewTestTimeOption.ZERO);
+    void split_withoutTiming_withThreeSplits() {
+        final var splits = splitTests(testCasesWithoutTiming, 3, FormatOption.LIST);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.FastTest", "de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withoutJUnit_withThreeSplits_withGradleFormat() throws Exception {
-        final var splits = splitTests(3,
-                false,
-                "**/example-project/**/*Test.java",
-                NewTestTimeOption.ZERO,
-                tmp,
-                FormatOption.GRADLE);
+    void split_withoutTiming_withThreeSplits_withGradleFormat() {
+        final var splits = splitTests(testCasesWithoutTiming, 3, FormatOption.GRADLE);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("--tests de.donnerbart.example.FastTest", "--tests de.donnerbart.example.SlowTest"),
                 List.of("--tests de.donnerbart.example.NoTimingOneTest", "--tests de.donnerbart.example.SlowestTest"),
                 List.of("--tests de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withOneSplit() throws Exception {
-        final var splits = splitTests(1, true, NewTestTimeOption.ZERO);
+    void split_withJUnit_withOneSplit() {
+        final var splits = splitTests(testCasesWithTiming, 1, FormatOption.LIST);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withTwoSplits() throws Exception {
-        final var splits = splitTests(2, true, NewTestTimeOption.ZERO);
+    void split_withJUnit_withTwoSplits() {
+        final var splits = splitTests(testCasesWithTiming, 2, FormatOption.LIST);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withThreeSplits() throws Exception {
-        final var splits = splitTests(3, true, NewTestTimeOption.ZERO);
+    void split_withJUnit_withThreeSplits() {
+        final var splits = splitTests(testCasesWithTiming, 3, FormatOption.LIST);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withFourSplits() throws Exception {
-        final var splits = splitTests(4, true, NewTestTimeOption.ZERO);
+    void split_withJUnit_withFourSplits() {
+        final var splits = splitTests(testCasesWithTiming, 4, FormatOption.LIST);
         assertThat(splits).hasSize(4).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.FastTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withAverageTestTime_withOneSplit() throws Exception {
-        final var splits = splitTests(1, true, NewTestTimeOption.AVERAGE);
+    void split_withJUnit_withAverageTestTime_withOneSplit() {
+        updateNoTimingTests(testCasesWithTiming, 56.0723d);
+        final var splits = splitTests(testCasesWithTiming, 1, FormatOption.LIST);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withAverageTestTime_withTwoSplits() throws Exception {
-        final var splits = splitTests(2, true, NewTestTimeOption.AVERAGE);
+    void split_withJUnit_withAverageTestTime_withTwoSplits() {
+        updateNoTimingTests(testCasesWithTiming, 56.0723d);
+        final var splits = splitTests(testCasesWithTiming, 2, FormatOption.LIST);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withAverageTestTime_withThreeSplits() throws Exception {
-        final var splits = splitTests(3, true, NewTestTimeOption.AVERAGE);
+    void split_withJUnit_withAverageTestTime_withThreeSplits() {
+        updateNoTimingTests(testCasesWithTiming, 56.0723d);
+        final var splits = splitTests(testCasesWithTiming, 3, FormatOption.LIST);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest", "de.donnerbart.example.FastTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withAverageTestTime_withFourSplits() throws Exception {
-        final var splits = splitTests(4, true, NewTestTimeOption.AVERAGE);
+    void split_withJUnit_withAverageTestTime_withFourSplits() {
+        updateNoTimingTests(testCasesWithTiming, 56.0723d);
+        final var splits = splitTests(testCasesWithTiming, 4, FormatOption.LIST);
         assertThat(splits).hasSize(4).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest"),
                 List.of("de.donnerbart.example.SlowTest", "de.donnerbart.example.FastTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withMinTestTime_withOneSplit() throws Exception {
-        final var splits = splitTests(1, true, NewTestTimeOption.MIN);
+    void split_withJUnit_withMinTestTime_withOneSplit() {
+        updateNoTimingTests(testCasesWithTiming, 2.374d);
+        final var splits = splitTests(testCasesWithTiming, 1, FormatOption.LIST);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withMinTestTime_withTwoSplits() throws Exception {
-        final var splits = splitTests(2, true, NewTestTimeOption.MIN);
+    void split_withJUnit_withMinTestTime_withTwoSplits() {
+        updateNoTimingTests(testCasesWithTiming, 2.374d);
+        final var splits = splitTests(testCasesWithTiming, 2, FormatOption.LIST);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withMinTestTime_withThreeSplits() throws Exception {
-        final var splits = splitTests(3, true, NewTestTimeOption.MIN);
+    void split_withJUnit_withMinTestTime_withThreeSplits() {
+        updateNoTimingTests(testCasesWithTiming, 2.374d);
+        final var splits = splitTests(testCasesWithTiming, 3, FormatOption.LIST);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withMinTestTime_withFourSplits() throws Exception {
-        final var splits = splitTests(4, true, NewTestTimeOption.MIN);
+    void split_withJUnit_withMinTestTime_withFourSplits() {
+        updateNoTimingTests(testCasesWithTiming, 2.374d);
+        final var splits = splitTests(testCasesWithTiming, 4, FormatOption.LIST);
         assertThat(splits).hasSize(4).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.FastTest", "de.donnerbart.example.NoTimingTwoTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withMaxTestTime_withOneSplit() throws Exception {
-        final var splits = splitTests(1, true, NewTestTimeOption.MAX);
+    void split_withJUnit_withMaxTestTime_withOneSplit() {
+        updateNoTimingTests(testCasesWithTiming, 153.457d);
+        final var splits = splitTests(testCasesWithTiming, 1, FormatOption.LIST);
         assertThat(splits).hasSize(1).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowestTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withMaxTestTime_withTwoSplits() throws Exception {
-        final var splits = splitTests(2, true, NewTestTimeOption.MAX);
+    void split_withJUnit_withMaxTestTime_withTwoSplits() {
+        updateNoTimingTests(testCasesWithTiming, 153.457d);
+        final var splits = splitTests(testCasesWithTiming, 2, FormatOption.LIST);
         assertThat(splits).hasSize(2).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withMaxTestTime_withThreeSplits() throws Exception {
-        final var splits = splitTests(3, true, NewTestTimeOption.MAX);
+    void split_withJUnit_withMaxTestTime_withThreeSplits() {
+        updateNoTimingTests(testCasesWithTiming, 153.457d);
+        final var splits = splitTests(testCasesWithTiming, 3, FormatOption.LIST);
         assertThat(splits).hasSize(3).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest", "de.donnerbart.example.FastTest"),
                 List.of("de.donnerbart.example.SlowestTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
     @Test
-    void split_withJUnit_withMaxTestTime_withFourSplits() throws Exception {
-        final var splits = splitTests(4, true, NewTestTimeOption.MAX);
+    void split_withJUnit_withMaxTestTime_withFourSplits() {
+        updateNoTimingTests(testCasesWithTiming, 153.457d);
+        final var splits = splitTests(testCasesWithTiming, 4, FormatOption.LIST);
         assertThat(splits).hasSize(4).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest"),
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest", "de.donnerbart.example.FastTest"));
-        assertThat(exitCode).hasNullValue();
     }
 
-    @Test
-    void split_whitespaceClassDefinition() throws Exception {
-        final var projectFolder =
-                tmp.resolve("multiline-class-definition-project").resolve("src").resolve("main").resolve("java");
-        copyResourceToTarget(projectFolder,
-                "tests/WhitespaceClassDefinitionTest.java",
-                "WhitespaceClassDefinitionTest.java",
-                PERMISSIONS);
-
-        final var testLoader = new TestLoader("**/multiline-class-definition-project/**/*Test.java",
-                null,
-                null,
-                NewTestTimeOption.ZERO,
-                tmp,
-                exitCode::set);
-        final var split = new TestSplit(testLoader.load(), 1, FormatOption.LIST, false);
-
-        final var splits = split.split();
-        assertThat(splits.size()).isOne();
-        assertThat(splits.get(0).sortedTests()).containsExactly("de.donnerbart.example.WhitespaceClassDefinitionTest");
-        assertThat(exitCode).hasNullValue();
-    }
-
-    @Test
-    void split_thirdPartyLibrary() throws Exception {
-        final var projectFolder =
-                tmp.resolve("third-party-library-project").resolve("src").resolve("main").resolve("java");
-        copyResourceToTarget(projectFolder,
-                "tests/ThirdPartyLibraryTest.java",
-                "ThirdPartyLibraryTest.java",
-                PERMISSIONS);
-
-        final var splits = splitTests(1,
-                false,
-                "**/third-party-library-project/**/*Test.java",
-                NewTestTimeOption.ZERO,
-                projectFolder,
-                FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly(List.of("de.donnerbart.example.ThirdPartyLibraryTest"));
-        assertThat(exitCode).hasNullValue();
-    }
-
-    @Test
-    void split_noPackage() throws Exception {
-        final var projectFolder = tmp.resolve("no-package-project").resolve("src").resolve("main").resolve("java");
-        copyResourceToTarget(projectFolder, "tests/NoPackageTest.java", "NoPackageTest.java", PERMISSIONS);
-
-        final var splits = splitTests(1,
-                false,
-                "**/no-package-project/**/*Test.java",
-                NewTestTimeOption.ZERO,
-                projectFolder,
-                FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly(List.of("NoPackageTest"));
-        assertThat(exitCode).hasNullValue();
-    }
-
-    @ParameterizedTest
-    @EnumSource(NewTestTimeOption.class)
-    void split_noTests(final @NotNull NewTestTimeOption newTestTimeOption) throws Exception {
-        final var projectFolder = tmp.resolve("no-tests-project").resolve("src").resolve("main").resolve("java");
-        Files.createDirectories(projectFolder);
-
-        final var splits = splitTests(1,
-                false,
-                "**/no-tests-project/**/*Test.java",
-                newTestTimeOption,
-                projectFolder,
-                FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly(List.of());
-        assertThat(exitCode).hasValue(1);
-    }
-
-    @Test
-    void split_noClassName() throws Exception {
-        final var projectFolder = tmp.resolve("no-classname-project").resolve("src").resolve("main").resolve("java");
-        copyResourceToTarget(projectFolder, "tests/NoClassNameTest.java", "NoClassNameTest.java", PERMISSIONS);
-
-        final var splits = splitTests(1,
-                false,
-                "**/no-classname-project/**/*Test.java",
-                NewTestTimeOption.ZERO,
-                projectFolder,
-                FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly(List.of());
-        assertThat(exitCode).hasValue(1);
-    }
-
-    private @NotNull List<List<String>> splitTests(
+    private static @NotNull List<List<String>> splitTests(
+            final @NotNull Set<TestCase> testCases,
             final int splitTotal,
-            final boolean withJUnit,
-            final @NotNull NewTestTimeOption newTestTimeOption)
-            throws Exception {
-        return splitTests(splitTotal,
-                withJUnit,
-                "**/example-project/**/*Test.java",
-                newTestTimeOption,
-                tmp,
-                FormatOption.LIST);
-    }
-
-    private @NotNull List<List<String>> splitTests(
-            final int splitTotal,
-            final boolean withJUnit,
-            final @NotNull String glob,
-            final @NotNull NewTestTimeOption newTestTimeOption,
-            final @NotNull Path workingDir,
-            final @NotNull FormatOption formatOption) throws Exception {
-        final var testLoader = new TestLoader(glob,
-                "**/example-project/**/*Abstract*.java",
-                withJUnit ? "**/junit-reports/*.xml" : null,
-                newTestTimeOption,
-                workingDir,
-                exitCode::set);
-        final var testSplit = new TestSplit(testLoader.load(), splitTotal, formatOption, true);
+            final @NotNull FormatOption formatOption) {
+        final var testSplit = new TestSplit(testCases, splitTotal, formatOption, true);
         final var splits = testSplit.split();
         final var result = new ArrayList<List<String>>(splitTotal);
         for (int index = 0; index < splitTotal; index++) {
             result.add(splits.get(index).sortedTests());
         }
         return result;
+    }
+
+    private static void updateNoTimingTests(final @NotNull Set<TestCase> testCases, final double time) {
+        testCases.remove(new TestCase("de.donnerbart.example.NoTimingOneTest", 0d));
+        testCases.add(new TestCase("de.donnerbart.example.NoTimingOneTest", time));
+        testCases.remove(new TestCase("de.donnerbart.example.NoTimingTwoTest", 0d));
+        testCases.add(new TestCase("de.donnerbart.example.NoTimingTwoTest", time));
     }
 }
