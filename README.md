@@ -39,6 +39,15 @@ java -jar split-tests-java.jar --split-index 0 --split-total 10 --glob 'project/
 ```plain
 Usage: <main class> [options]
   Options:
+  * --split-index, -i
+      This test split index.
+      Default: 0
+  * --split-total, -t
+      Total number of test splits.
+      Default: 0
+  * --glob, -g
+      Glob pattern to find test files. Make sure to single-quote the pattern 
+      to avoid shell expansion.
     --calculate-optimal-total-split, -c
       Calculates the optimal test split (only on the first split index). Logs 
       a warning if --split-total does not match.
@@ -53,9 +62,6 @@ Usage: <main class> [options]
       The output format.
       Default: list
       Possible Values: [list, gradle]
-  * --glob, -g
-      Glob pattern to find test files. Make sure to single-quote the pattern 
-      to avoid shell expansion.
     --help, -h
       Prints the usage.
     --junit-glob, -j
@@ -69,12 +75,6 @@ Usage: <main class> [options]
       reports. 
       Default: average
       Possible Values: [zero, average, min, max]
-  * --split-index, -i
-      This test split index.
-      Default: 0
-  * --split-total, -t
-      Total number of test splits.
-      Default: 0
     --working-directory, -w
       The working directory. Defaults to the current directory.
 ```

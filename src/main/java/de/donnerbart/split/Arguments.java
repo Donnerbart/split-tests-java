@@ -15,15 +15,19 @@ class Arguments {
     @Parameter(names = {"--help", "-h"}, description = "Prints the usage.", help = true)
     boolean help;
 
-    @Parameter(names = {"--split-index", "-i"}, description = "This test split index.", required = true)
+    @Parameter(names = {"--split-index", "-i"}, description = "This test split index.", required = true, order = 0)
     int splitIndex;
 
-    @Parameter(names = {"--split-total", "-t"}, description = "Total number of test splits.", required = true)
+    @Parameter(names = {"--split-total", "-t"},
+               description = "Total number of test splits.",
+               required = true,
+               order = 1)
     int splitTotal;
 
     @Parameter(names = {"--glob", "-g"},
                description = "Glob pattern to find test files. Make sure to single-quote the pattern to avoid shell expansion.",
-               required = true)
+               required = true,
+               order = 2)
     @SuppressWarnings("NotNullFieldNotInitialized")
     @NotNull String glob;
 
