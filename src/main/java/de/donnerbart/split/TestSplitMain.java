@@ -24,56 +24,14 @@ public class TestSplitMain {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(TestSplitMain.class);
 
-    private TestSplitMain() {
-    }
-
     public static void main(final @Nullable String @NotNull [] args) throws Exception {
-        final var arguments = init(System::exit, args);
-        run(System::exit, arguments);
+        run(System::exit, args);
     }
 
     @VisibleForTesting
-    static @NotNull Arguments init(
-            final @NotNull Consumer<Integer> exitConsumer,
-            final @Nullable String @NotNull [] args) {
-        final var arguments = new Arguments();
-        final var jCommander = JCommander.newBuilder().addObject(arguments).build();
-        jCommander.parse(args);
-        arguments.init();
-        if (arguments.help) {
-            jCommander.usage();
-            exitConsumer.accept(0);
-            return arguments;
-        }
-        if (arguments.debug) {
-            final var root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-            root.setLevel(Level.DEBUG);
-        }
-        if (!validateArguments(arguments)) {
-            exitConsumer.accept(1);
-        }
-        return arguments;
-    }
-
-    @VisibleForTesting
-    static @NotNull Splits run(final @NotNull Consumer<Integer> exitConsumer, final @NotNull Arguments arguments)
+    static @NotNull Splits run(final @NotNull Consumer<Integer> exitConsumer, final @Nullable String @NotNull [] args)
             throws Exception {
-        final var properties = readProperties("split-tests-java.properties");
-        LOG.info("split-tests-java {} (commit: {} on branch: {}) built on {}",
-                properties.getProperty("version", "unknown"),
-                properties.getProperty("git.commit.id.abbrev", "unknown"),
-                properties.getProperty("git.branch", "unknown"),
-                getBuiltTime(properties.getProperty("git.commit.time", "unknown")));
-        LOG.info("Split index {} (total: {})", arguments.splitIndex, arguments.splitTotal);
-        LOG.info("Working directory: {}", arguments.workingDirectory);
-        LOG.info("Glob: {}", arguments.glob);
-        if (arguments.excludeGlob != null) {
-            LOG.info("Exclude glob: {}", arguments.excludeGlob);
-        }
-        if (arguments.junitGlob != null) {
-            LOG.info("JUnit glob: {}", arguments.junitGlob);
-        }
-        LOG.info("Output format: {}", arguments.formatOption);
+        final var arguments = init(exitConsumer, args);
         final var testLoader = new TestLoader(arguments.glob,
                 arguments.excludeGlob,
                 arguments.junitGlob,
@@ -93,6 +51,45 @@ public class TestSplitMain {
     }
 
     @VisibleForTesting
+    static @NotNull Arguments init(
+            final @NotNull Consumer<Integer> exitConsumer,
+            final @Nullable String @NotNull [] args) throws Exception {
+        final var arguments = new Arguments();
+        final var jCommander = JCommander.newBuilder().addObject(arguments).build();
+        jCommander.parse(args);
+        arguments.init();
+        if (arguments.help) {
+            jCommander.usage();
+            exitConsumer.accept(0);
+            return arguments;
+        }
+        if (arguments.debug) {
+            final var root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+            root.setLevel(Level.DEBUG);
+        }
+        if (!validateArguments(arguments)) {
+            exitConsumer.accept(1);
+        }
+        final var properties = readProperties("split-tests-java.properties");
+        LOG.info("split-tests-java {} (commit: {} on branch: {}) built on {}",
+                properties.getProperty("version", "unknown"),
+                properties.getProperty("git.commit.id.abbrev", "unknown"),
+                properties.getProperty("git.branch", "unknown"),
+                getBuiltTime(properties.getProperty("git.commit.time", "unknown")));
+        LOG.info("Split index {} (total: {})", arguments.splitIndex, arguments.splitTotal);
+        LOG.info("Working directory: {}", arguments.workingDirectory);
+        LOG.info("Glob: {}", arguments.glob);
+        if (arguments.excludeGlob != null) {
+            LOG.info("Exclude glob: {}", arguments.excludeGlob);
+        }
+        if (arguments.junitGlob != null) {
+            LOG.info("JUnit glob: {}", arguments.junitGlob);
+        }
+        LOG.info("Output format: {}", arguments.formatOption);
+        return arguments;
+    }
+
+    @VisibleForTesting
     static boolean validateArguments(final @NotNull Arguments arguments) {
         if (arguments.splitTotal < 1) {
             LOG.error("--split-total must be greater than 0");
@@ -107,6 +104,26 @@ public class TestSplitMain {
             return false;
         }
         return true;
+    }
+
+    @VisibleForTesting
+    static @NotNull Properties readProperties(final @NotNull String resourceFile) throws Exception {
+        final var properties = new Properties();
+        try (final var inputStream = TestSplitMain.class.getClassLoader().getResourceAsStream(resourceFile)) {
+            if (inputStream != null) {
+                properties.load(inputStream);
+            }
+        }
+        return properties;
+    }
+
+    @VisibleForTesting
+    static @NotNull Date getBuiltTime(final @NotNull String dateString) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
+        } catch (final Exception e) {
+            return Date.from(Instant.EPOCH);
+        }
     }
 
     @VisibleForTesting
@@ -144,26 +161,6 @@ public class TestSplitMain {
                 return 0;
             }
             lastSlowestSplit = slowestSplit;
-        }
-    }
-
-    @VisibleForTesting
-    static @NotNull Properties readProperties(final @NotNull String resourceFile) throws Exception {
-        final var properties = new Properties();
-        try (final var inputStream = TestSplitMain.class.getClassLoader().getResourceAsStream(resourceFile)) {
-            if (inputStream != null) {
-                properties.load(inputStream);
-            }
-        }
-        return properties;
-    }
-
-    @VisibleForTesting
-    static @NotNull Date getBuiltTime(final @NotNull String dateString) {
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
-        } catch (final Exception e) {
-            return Date.from(Instant.EPOCH);
         }
     }
 }

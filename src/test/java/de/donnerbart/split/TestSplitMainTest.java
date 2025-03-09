@@ -72,27 +72,9 @@ class TestSplitMainTest {
     }
 
     @Test
-    void init() {
-        TestSplitMain.init(exitCode::set,
-                new String[]{"-i", "0", "-t", "1", "-g", "**/*Test.java", "-w", tmp.toString()});
-        assertThat(exitCode).hasNullValue();
-    }
-
-    @Test
-    void init_withHelp() {
-        TestSplitMain.init(exitCode::set, new String[]{"-h"});
-        assertThat(exitCode).hasValue(0);
-    }
-
-    @Test
-    void init_withInvalidArguments() {
-        TestSplitMain.init(exitCode::set, new String[]{"-i", "0", "-t", "0", "-g", "**/*Test.java"});
-        assertThat(exitCode).hasValue(1);
-    }
-
-    @Test
     void run() throws Exception {
-        jCommander.parse("-i",
+        final var args = new String[]{
+                "-i",
                 "0",
                 "-t",
                 "2",
@@ -105,8 +87,8 @@ class TestSplitMainTest {
                 "-w",
                 tmp.toString(),
                 "-c",
-                "-d");
-        final var splits = TestSplitMain.run(exitCode::set, arguments);
+                "-d"};
+        final var splits = TestSplitMain.run(exitCode::set, args);
         assertThat(exitCode).hasNullValue();
 
         assertThat(splits.size()).isEqualTo(2);
@@ -114,6 +96,24 @@ class TestSplitMainTest {
                 .containsExactly("de.donnerbart.example.SlowestTest");
         assertThat(splits.get(1).sortedTests()).hasSize(2)
                 .containsExactly("de.donnerbart.example.SlowTest", "de.donnerbart.example.FastTest");
+    }
+
+    @Test
+    void init() throws Exception {
+        TestSplitMain.init(exitCode::set, new String[]{"-i", "0", "-t", "1", "-g", "**/*Test.java"});
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
+    void init_withHelp() throws Exception {
+        TestSplitMain.init(exitCode::set, new String[]{"-h"});
+        assertThat(exitCode).hasValue(0);
+    }
+
+    @Test
+    void init_withInvalidArguments() throws Exception {
+        TestSplitMain.init(exitCode::set, new String[]{"-i", "0", "-t", "0", "-g", "**/*Test.java"});
+        assertThat(exitCode).hasValue(1);
     }
 
     @Test
