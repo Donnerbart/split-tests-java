@@ -35,13 +35,13 @@ class TestSplitTest {
     @Test
     void split_noTests() {
         final var splits = splitTests(Set.of(), 1, FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly(List.of());
+        assertThat(splits).containsExactly(List.of());
     }
 
     @Test
     void split_withoutTiming_withOneSplit() {
         final var splits = splitTests(testCasesWithoutTiming, 1, FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest",
@@ -52,7 +52,7 @@ class TestSplitTest {
     @Test
     void split_withoutTiming_withTwoSplits() {
         final var splits = splitTests(testCasesWithoutTiming, 2, FormatOption.LIST);
-        assertThat(splits).hasSize(2).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.FastTest",
                         "de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowestTest"),
@@ -62,7 +62,7 @@ class TestSplitTest {
     @Test
     void split_withoutTiming_withThreeSplits() {
         final var splits = splitTests(testCasesWithoutTiming, 3, FormatOption.LIST);
-        assertThat(splits).hasSize(3).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.FastTest", "de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest"));
@@ -71,7 +71,7 @@ class TestSplitTest {
     @Test
     void split_withoutTiming_withThreeSplits_withGradleFormat() {
         final var splits = splitTests(testCasesWithoutTiming, 3, FormatOption.GRADLE);
-        assertThat(splits).hasSize(3).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("--tests de.donnerbart.example.FastTest", "--tests de.donnerbart.example.SlowTest"),
                 List.of("--tests de.donnerbart.example.NoTimingOneTest", "--tests de.donnerbart.example.SlowestTest"),
                 List.of("--tests de.donnerbart.example.NoTimingTwoTest"));
@@ -80,7 +80,7 @@ class TestSplitTest {
     @Test
     void split_withJUnit_withOneSplit() {
         final var splits = splitTests(testCasesWithTiming, 1, FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest",
@@ -91,7 +91,7 @@ class TestSplitTest {
     @Test
     void split_withJUnit_withTwoSplits() {
         final var splits = splitTests(testCasesWithTiming, 2, FormatOption.LIST);
-        assertThat(splits).hasSize(2).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest",
@@ -102,7 +102,7 @@ class TestSplitTest {
     @Test
     void split_withJUnit_withThreeSplits() {
         final var splits = splitTests(testCasesWithTiming, 3, FormatOption.LIST);
-        assertThat(splits).hasSize(3).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.FastTest",
@@ -113,7 +113,7 @@ class TestSplitTest {
     @Test
     void split_withJUnit_withFourSplits() {
         final var splits = splitTests(testCasesWithTiming, 4, FormatOption.LIST);
-        assertThat(splits).hasSize(4).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.FastTest"),
@@ -124,7 +124,7 @@ class TestSplitTest {
     void split_withJUnit_withAverageTestTime_withOneSplit() {
         updateNoTimingTests(testCasesWithTiming, 56.0723d);
         final var splits = splitTests(testCasesWithTiming, 1, FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
                         "de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest",
@@ -136,7 +136,7 @@ class TestSplitTest {
     void split_withJUnit_withAverageTestTime_withTwoSplits() {
         updateNoTimingTests(testCasesWithTiming, 56.0723d);
         final var splits = splitTests(testCasesWithTiming, 2, FormatOption.LIST);
-        assertThat(splits).hasSize(2).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest",
@@ -148,7 +148,7 @@ class TestSplitTest {
     void split_withJUnit_withAverageTestTime_withThreeSplits() {
         updateNoTimingTests(testCasesWithTiming, 56.0723d);
         final var splits = splitTests(testCasesWithTiming, 3, FormatOption.LIST);
-        assertThat(splits).hasSize(3).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest", "de.donnerbart.example.FastTest"));
@@ -158,7 +158,7 @@ class TestSplitTest {
     void split_withJUnit_withAverageTestTime_withFourSplits() {
         updateNoTimingTests(testCasesWithTiming, 56.0723d);
         final var splits = splitTests(testCasesWithTiming, 4, FormatOption.LIST);
-        assertThat(splits).hasSize(4).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingOneTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest"),
@@ -169,7 +169,7 @@ class TestSplitTest {
     void split_withJUnit_withMinTestTime_withOneSplit() {
         updateNoTimingTests(testCasesWithTiming, 2.374d);
         final var splits = splitTests(testCasesWithTiming, 1, FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest",
                         "de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest",
@@ -181,7 +181,7 @@ class TestSplitTest {
     void split_withJUnit_withMinTestTime_withTwoSplits() {
         updateNoTimingTests(testCasesWithTiming, 2.374d);
         final var splits = splitTests(testCasesWithTiming, 2, FormatOption.LIST);
-        assertThat(splits).hasSize(2).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest",
                         "de.donnerbart.example.FastTest",
@@ -193,7 +193,7 @@ class TestSplitTest {
     void split_withJUnit_withMinTestTime_withThreeSplits() {
         updateNoTimingTests(testCasesWithTiming, 2.374d);
         final var splits = splitTests(testCasesWithTiming, 3, FormatOption.LIST);
-        assertThat(splits).hasSize(3).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.FastTest",
@@ -205,7 +205,7 @@ class TestSplitTest {
     void split_withJUnit_withMinTestTime_withFourSplits() {
         updateNoTimingTests(testCasesWithTiming, 2.374d);
         final var splits = splitTests(testCasesWithTiming, 4, FormatOption.LIST);
-        assertThat(splits).hasSize(4).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.FastTest", "de.donnerbart.example.NoTimingTwoTest"),
@@ -216,7 +216,7 @@ class TestSplitTest {
     void split_withJUnit_withMaxTestTime_withOneSplit() {
         updateNoTimingTests(testCasesWithTiming, 153.457d);
         final var splits = splitTests(testCasesWithTiming, 1, FormatOption.LIST);
-        assertThat(splits).hasSize(1).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest",
                         "de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowestTest",
@@ -228,7 +228,7 @@ class TestSplitTest {
     void split_withJUnit_withMaxTestTime_withTwoSplits() {
         updateNoTimingTests(testCasesWithTiming, 153.457d);
         final var splits = splitTests(testCasesWithTiming, 2, FormatOption.LIST);
-        assertThat(splits).hasSize(2).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowestTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest",
                         "de.donnerbart.example.SlowTest",
@@ -239,7 +239,7 @@ class TestSplitTest {
     void split_withJUnit_withMaxTestTime_withThreeSplits() {
         updateNoTimingTests(testCasesWithTiming, 153.457d);
         final var splits = splitTests(testCasesWithTiming, 3, FormatOption.LIST);
-        assertThat(splits).hasSize(3).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest", "de.donnerbart.example.SlowTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest", "de.donnerbart.example.FastTest"),
                 List.of("de.donnerbart.example.SlowestTest"));
@@ -249,7 +249,7 @@ class TestSplitTest {
     void split_withJUnit_withMaxTestTime_withFourSplits() {
         updateNoTimingTests(testCasesWithTiming, 153.457d);
         final var splits = splitTests(testCasesWithTiming, 4, FormatOption.LIST);
-        assertThat(splits).hasSize(4).containsExactly( //
+        assertThat(splits).containsExactly( //
                 List.of("de.donnerbart.example.NoTimingOneTest"),
                 List.of("de.donnerbart.example.NoTimingTwoTest"),
                 List.of("de.donnerbart.example.SlowestTest"),
