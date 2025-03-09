@@ -104,7 +104,7 @@ class TestSplitMainTest {
                 "**/junit-reports/*.xml",
                 "-w",
                 tmp.toString(),
-                "-o",
+                "-c",
                 "-d");
         final var splits = TestSplitMain.run(exitCode::set, arguments);
         assertThat(exitCode).hasNullValue();
