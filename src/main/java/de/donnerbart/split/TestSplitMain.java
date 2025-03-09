@@ -55,9 +55,9 @@ public class TestSplitMain {
             final @NotNull Consumer<Integer> exitConsumer,
             final @Nullable String @NotNull [] args) throws Exception {
         final var arguments = new Arguments();
-        final var jCommander = JCommander.newBuilder().addObject(arguments).build();
+        final var defaultProvider = new Arguments.DefaultProvider();
+        final var jCommander = JCommander.newBuilder().addObject(arguments).defaultProvider(defaultProvider).build();
         jCommander.parse(args);
-        arguments.init();
         if (arguments.help) {
             jCommander.usage();
             exitConsumer.accept(0);
