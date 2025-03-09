@@ -11,12 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -27,31 +24,40 @@ public class TestSplitMain {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(TestSplitMain.class);
 
+    private TestSplitMain() {
+    }
+
     public static void main(final @Nullable String @NotNull [] args) throws Exception {
-        run(System::exit, args);
+        final var arguments = init(System::exit, args);
+        run(System::exit, arguments);
     }
 
     @VisibleForTesting
-    static @NotNull Splits run(final @NotNull Consumer<Integer> exitConsumer, final @Nullable String @NotNull [] args)
-            throws Exception {
+    static @NotNull Arguments init(
+            final @NotNull Consumer<Integer> exitConsumer,
+            final @Nullable String @NotNull [] args) {
         final var arguments = new Arguments();
         final var jCommander = JCommander.newBuilder().addObject(arguments).build();
         jCommander.parse(args);
+        arguments.init();
         if (arguments.help) {
             jCommander.usage();
             exitConsumer.accept(0);
+            return arguments;
         }
         if (arguments.debug) {
             final var root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
             root.setLevel(Level.DEBUG);
         }
-        final var workingDirectory =
-                Objects.requireNonNullElse(arguments.workingDirectory, Paths.get(System.getProperty("user.dir")))
-                        .toAbsolutePath()
-                        .normalize();
-        if (!validateArguments(arguments, workingDirectory)) {
+        if (!validateArguments(arguments)) {
             exitConsumer.accept(1);
         }
+        return arguments;
+    }
+
+    @VisibleForTesting
+    static @NotNull Splits run(final @NotNull Consumer<Integer> exitConsumer, final @NotNull Arguments arguments)
+            throws Exception {
         final var properties = readProperties("split-tests-java.properties");
         LOG.info("split-tests-java {} (commit: {} on branch: {}) built on {}",
                 properties.getProperty("version", "unknown"),
@@ -59,7 +65,7 @@ public class TestSplitMain {
                 properties.getProperty("git.branch", "unknown"),
                 getBuiltTime(properties.getProperty("git.commit.time", "unknown")));
         LOG.info("Split index {} (total: {})", arguments.splitIndex, arguments.splitTotal);
-        LOG.info("Working directory: {}", workingDirectory);
+        LOG.info("Working directory: {}", arguments.workingDirectory);
         LOG.info("Glob: {}", arguments.glob);
         if (arguments.excludeGlob != null) {
             LOG.info("Exclude glob: {}", arguments.excludeGlob);
@@ -72,8 +78,8 @@ public class TestSplitMain {
                 arguments.excludeGlob,
                 arguments.junitGlob,
                 arguments.newTestTimeOption,
-                workingDirectory,
-                System::exit);
+                arguments.workingDirectory,
+                exitConsumer);
         final var testCases = testLoader.load();
         if (arguments.calculateOptimalTotalSplit) {
             calculateOptimalTotalSplit(arguments, testCases);
@@ -87,7 +93,7 @@ public class TestSplitMain {
     }
 
     @VisibleForTesting
-    static boolean validateArguments(final @NotNull Arguments arguments, final @NotNull Path workingDirectory) {
+    static boolean validateArguments(final @NotNull Arguments arguments) {
         if (arguments.splitTotal < 1) {
             LOG.error("--split-total must be greater than 0");
             return false;
@@ -96,7 +102,7 @@ public class TestSplitMain {
             LOG.error("--split-index must lesser than --split-total");
             return false;
         }
-        if (!Files.exists(workingDirectory)) {
+        if (!Files.exists(arguments.workingDirectory)) {
             LOG.error("Working directory does not exist: {}", arguments.workingDirectory);
             return false;
         }
