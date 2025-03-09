@@ -117,23 +117,24 @@ public class TestLoader {
         Files.walkFileTree(rootPath, new SimpleFileVisitor<>() {
             @Override
             public @NotNull FileVisitResult visitFile(
-                    final @Nullable Path path,
+                    final @NotNull Path path,
                     final @NotNull BasicFileAttributes attributes) {
-                if (path != null) {
-                    final var candidate = path.normalize();
-                    if (includeMatcher.matches(candidate)) {
-                        if (excludeMatcher.matches(candidate)) {
-                            LOG.debug("Excluding test file {}", candidate);
-                        } else {
-                            files.add(candidate);
-                        }
+                final var candidate = path.normalize();
+                if (includeMatcher.matches(candidate)) {
+                    if (excludeMatcher.matches(candidate)) {
+                        LOG.debug("Excluding test file {}", candidate);
+                    } else if (!Files.isReadable(candidate)) {
+                        LOG.debug("Ignoring unreadable file {}", candidate);
+                    } else {
+                        files.add(candidate);
                     }
                 }
                 return FileVisitResult.CONTINUE;
             }
 
             @Override
-            public @NotNull FileVisitResult visitFileFailed(final @Nullable Path file, final @NotNull IOException e) {
+            public @NotNull FileVisitResult visitFileFailed(final @NotNull Path path, final @NotNull IOException e) {
+                LOG.debug("Ignoring unreadable path {}", path.normalize());
                 return FileVisitResult.CONTINUE;
             }
         });

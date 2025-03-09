@@ -38,7 +38,15 @@ class TestLoaderTest {
                 .resolve("de")
                 .resolve("donnerbart")
                 .resolve("example");
-        Files.createDirectories(projectFolder);
+        final var unreadableFolder = projectFolder.resolve("unreadable");
+        Files.createDirectories(unreadableFolder);
+        // unreadable tests
+        copyResourceToTarget(projectFolder, "tests/UnreadableTest.java", "UnreadableTest.java", Set.of());
+        copyResourceToTarget(unreadableFolder,
+                "tests/UnreadableNestedTest.java",
+                "UnreadableNestedTest.java",
+                PERMISSIONS);
+        Files.setPosixFilePermissions(unreadableFolder, Set.of());
         // ignored tests
         copyResourceToTarget(projectFolder, "tests/AbstractTest.java", "AbstractTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/BaseTest.java", "BaseTest.java", PERMISSIONS);

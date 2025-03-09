@@ -32,9 +32,7 @@ class TestUtil {
             }
 
             Files.copy(Path.of(resource.toURI()), path);
-            if (!permissions.isEmpty()) {
-                Files.setPosixFilePermissions(path, permissions);
-            }
+            Files.setPosixFilePermissions(path, permissions);
             return path.toAbsolutePath();
         } catch (final Exception e) {
             throw new AssertionError("Could not copy resource file to target", e);
