@@ -59,6 +59,7 @@ dependencies {
 }
 
 tasks.test {
+    dependsOn(tasks.generateGitProperties)
     useJUnitPlatform()
 }
 
