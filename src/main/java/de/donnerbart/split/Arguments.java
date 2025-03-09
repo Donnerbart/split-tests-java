@@ -54,7 +54,7 @@ class Arguments {
     @SuppressWarnings("NotNullFieldNotInitialized")
     @NotNull Path workingDirectory;
 
-    @Parameter(names = {"--calculate-optimal-total-split", "-o"},
+    @Parameter(names = {"--calculate-optimal-total-split", "-c"},
                description = "Calculates the optimal test split (only on the first split index). Logs a warning if --split-total does not match.")
     boolean calculateOptimalTotalSplit = false;
 
