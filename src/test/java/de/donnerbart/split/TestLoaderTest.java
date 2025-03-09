@@ -177,6 +177,21 @@ class TestLoaderTest {
     }
 
     @Test
+    void load_ignoreImportWithoutIgnoreAnnotation() throws Exception {
+        final var projectFolder =
+                tmp.resolve("no-ignore-annotation-project").resolve("src").resolve("main").resolve("java");
+        copyResourceToTarget(projectFolder, "tests/IgnoreImportTest.java", "IgnoreImportTest.java", PERMISSIONS);
+
+        final var testCases = loadTests(false,
+                NewTestTimeOption.ZERO,
+                "**/no-ignore-annotation-project/**/*Test.java",
+                projectFolder);
+        assertThat(testCases).singleElement().satisfies(testCase -> assertTestCase(testCase, //
+                new TestCase("de.donnerbart.example.IgnoreImportTest", 0d)));
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
     void load_noPackage() throws Exception {
         final var projectFolder = tmp.resolve("no-package-project").resolve("src").resolve("main").resolve("java");
         copyResourceToTarget(projectFolder, "tests/NoPackageTest.java", "NoPackageTest.java", PERMISSIONS);
