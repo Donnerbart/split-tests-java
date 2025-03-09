@@ -6,7 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Objects;
 
 class Arguments {
 
@@ -49,7 +51,8 @@ class Arguments {
 
     @Parameter(names = {"--working-directory", "-w"},
                description = "The working directory. Defaults to the current directory.")
-    @Nullable Path workingDirectory;
+    @SuppressWarnings("NotNullFieldNotInitialized")
+    @NotNull Path workingDirectory;
 
     @Parameter(names = {"--calculate-optimal-total-split", "-o"},
                description = "Calculates the optimal test split (only on the first split index). Logs a warning if --split-total does not match.")
@@ -61,6 +64,12 @@ class Arguments {
 
     @Parameter(names = {"--debug", "-d"}, description = "Enables debug logging.")
     boolean debug = false;
+
+    void init() {
+        workingDirectory = Objects.requireNonNullElse(workingDirectory, Paths.get(System.getProperty("user.dir")))
+                .toAbsolutePath()
+                .normalize();
+    }
 
     public static class FormatOptionConverter implements IStringConverter<FormatOption> {
 

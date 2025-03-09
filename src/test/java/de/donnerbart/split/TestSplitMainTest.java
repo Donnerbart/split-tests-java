@@ -19,6 +19,7 @@ import static de.donnerbart.split.TestUtil.copyResourceToTarget;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 class TestSplitMainTest {
 
@@ -65,19 +66,47 @@ class TestSplitMainTest {
     }
 
     @Test
+    void main_fullLifecycle() {
+        assertThatNoException().isThrownBy(() -> TestSplitMain.main(new String[]{
+                "-i", "0", "-t", "2", "-g", "**/example-project/**/*Test.java", "-w", tmp.toString()}));
+    }
+
+    @Test
+    void init() {
+        TestSplitMain.init(exitCode::set,
+                new String[]{"-i", "0", "-t", "1", "-g", "**/*Test.java", "-w", tmp.toString()});
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
+    void init_withHelp() {
+        TestSplitMain.init(exitCode::set, new String[]{"-h"});
+        assertThat(exitCode).hasValue(0);
+    }
+
+    @Test
+    void init_withInvalidArguments() {
+        TestSplitMain.init(exitCode::set, new String[]{"-i", "0", "-t", "0", "-g", "**/*Test.java"});
+        assertThat(exitCode).hasValue(1);
+    }
+
+    @Test
     void run() throws Exception {
-        final var splits = TestSplitMain.run(exitCode::set, new String[]{
-                "-i",
+        jCommander.parse("-i",
                 "0",
                 "-t",
                 "2",
                 "-g",
                 "**/example-project/**/*Test.java",
+                "-e",
+                "**/example-project/**/*Abstract*.java",
                 "-j",
                 "**/junit-reports/*.xml",
                 "-w",
-                tmp.toAbsolutePath().toString(),
-                "-d"});
+                tmp.toString(),
+                "-o",
+                "-d");
+        final var splits = TestSplitMain.run(exitCode::set, arguments);
         assertThat(exitCode).hasNullValue();
 
         assertThat(splits.size()).isEqualTo(2);
@@ -89,32 +118,32 @@ class TestSplitMainTest {
 
     @Test
     void validateArguments() {
-        jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java");
-        assertThat(TestSplitMain.validateArguments(arguments, tmp)).isTrue();
+        jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java", "-w", tmp.toAbsolutePath().toString());
+        assertThat(TestSplitMain.validateArguments(arguments)).isTrue();
     }
 
     @Test
     void validateArguments_withZeroSplitTotal() {
-        jCommander.parse("-i", "0", "-t", "0", "-g", "**/*Test.java");
-        assertThat(TestSplitMain.validateArguments(arguments, tmp)).isFalse();
+        jCommander.parse("-i", "0", "-t", "0", "-g", "**/*Test.java", "-w", tmp.toAbsolutePath().toString());
+        assertThat(TestSplitMain.validateArguments(arguments)).isFalse();
     }
 
     @Test
     void validateArguments_withNegativeSplitTotal() {
-        jCommander.parse("-i", "0", "-t", "-1", "-g", "**/*Test.java");
-        assertThat(TestSplitMain.validateArguments(arguments, tmp)).isFalse();
+        jCommander.parse("-i", "0", "-t", "-1", "-g", "**/*Test.java", "-w", tmp.toAbsolutePath().toString());
+        assertThat(TestSplitMain.validateArguments(arguments)).isFalse();
     }
 
     @Test
     void validateArguments_withTooSmallSplitIndex() {
-        jCommander.parse("-i", "1", "-t", "1", "-g", "**/*Test.java");
-        assertThat(TestSplitMain.validateArguments(arguments, tmp)).isFalse();
+        jCommander.parse("-i", "1", "-t", "1", "-g", "**/*Test.java", "-w", tmp.toAbsolutePath().toString());
+        assertThat(TestSplitMain.validateArguments(arguments)).isFalse();
     }
 
     @Test
     void validateArguments_withInvalidWorkingDirectory() {
-        jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java");
-        assertThat(TestSplitMain.validateArguments(arguments, tmp.resolve("does-not-exist"))).isFalse();
+        jCommander.parse("-i", "0", "-t", "1", "-g", "**/*Test.java", "-w", tmp.resolve("does-not-exist").toString());
+        assertThat(TestSplitMain.validateArguments(arguments)).isFalse();
     }
 
     @Test
