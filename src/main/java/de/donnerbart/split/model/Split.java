@@ -83,7 +83,7 @@ public class Split implements Comparable<Split> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "Split{" +
                 "index=" +
                 formatIndex() +

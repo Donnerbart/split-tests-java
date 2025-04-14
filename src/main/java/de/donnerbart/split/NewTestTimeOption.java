@@ -16,7 +16,7 @@ public enum NewTestTimeOption {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return parameterValue;
     }
 }

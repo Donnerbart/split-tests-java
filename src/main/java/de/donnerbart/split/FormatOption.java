@@ -14,7 +14,7 @@ public enum FormatOption {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return parameterValue;
     }
 }
