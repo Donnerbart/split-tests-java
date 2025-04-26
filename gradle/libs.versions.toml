@@ -1,7 +1,7 @@
 [versions]
 assertj = "3.27.3"
 equalsVerifier = "3.19.3"
-jackson = "2.18.3"
+jackson = "2.19.0"
 java-parser = "3.26.4"
 jcommander = "1.82"
 jetbrains-annotations = "26.0.2"
