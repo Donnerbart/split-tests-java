@@ -1,11 +1,11 @@
 [versions]
 assertj = "3.27.3"
-equalsVerifier = "4.0.3"
+equalsVerifier = "4.0.4"
 jackson = "2.19.1"
 java-parser = "3.27.0"
 jcommander = "1.82"
 jetbrains-annotations = "26.0.2"
-junit = "5.13.2"
+junit = "5.13.3"
 logback = "1.5.18"
 
 [libraries]
@@ -21,4 +21,4 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 
 [plugins]
 gradle-git-properties = { id = "com.gorylenko.gradle-git-properties", version = "2.5.0" }
-shadow = { id = "com.gradleup.shadow", version = "8.3.7" }
+shadow = { id = "com.gradleup.shadow", version = "8.3.8" }
