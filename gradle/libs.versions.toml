@@ -21,4 +21,4 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 
 [plugins]
 gradle-git-properties = { id = "com.gorylenko.gradle-git-properties", version = "2.5.2" }
-shadow = { id = "com.gradleup.shadow", version = "8.3.9" }
+shadow = { id = "com.gradleup.shadow", version = "9.1.0" }
