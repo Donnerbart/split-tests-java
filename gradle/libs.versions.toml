@@ -4,7 +4,7 @@ equalsVerifier = "4.0.9"
 jackson = "2.20.0"
 java-parser = "3.27.0"
 jcommander = "1.82"
-jetbrains-annotations = "26.0.2"
+jetbrains-annotations = "26.0.2-1"
 junit = "5.13.4"
 logback = "1.5.18"
 
@@ -20,5 +20,5 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]
-gradle-git-properties = { id = "com.gorylenko.gradle-git-properties", version = "2.5.2" }
+gradle-git-properties = { id = "com.gorylenko.gradle-git-properties", version = "2.5.3" }
 shadow = { id = "com.gradleup.shadow", version = "9.1.0" }
