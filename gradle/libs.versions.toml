@@ -1,6 +1,6 @@
 [versions]
 assertj = "3.27.4"
-equalsVerifier = "4.0.9"
+equalsVerifier = "4.1"
 jackson = "2.20.0"
 java-parser = "3.27.0"
 jcommander = "1.82"
