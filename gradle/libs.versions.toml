@@ -1,11 +1,11 @@
 [versions]
 assertj = "3.27.6"
-equalsVerifier = "4.2"
-jackson = "2.20.0"
+equalsVerifier = "4.2.1"
+jackson = "2.20.1"
 java-parser = "3.27.1"
 jcommander = "1.82"
 jetbrains-annotations = "26.0.2-1"
-junit = "6.0.0"
+junit = "6.0.1"
 logback = "1.5.20"
 
 [libraries]
