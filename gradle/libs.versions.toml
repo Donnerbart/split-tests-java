@@ -20,5 +20,5 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]
-gradle-git-properties = { id = "com.gorylenko.gradle-git-properties", version = "2.5.5" }
+gradle-git-properties = { id = "com.gorylenko.gradle-git-properties", version = "2.5.6" }
 shadow = { id = "com.gradleup.shadow", version = "9.3.1" }
