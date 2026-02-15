@@ -5,7 +5,7 @@ jackson = "2.21.0"
 java-parser = "3.28.0"
 jcommander = "1.82"
 jetbrains-annotations = "26.0.2-1"
-junit = "6.0.2"
+junit = "6.0.3"
 logback = "1.5.31"
 
 [libraries]
