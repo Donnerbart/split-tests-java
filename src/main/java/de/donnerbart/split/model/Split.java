@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Split implements Comparable<Split> {
+public final class Split implements Comparable<Split> {
 
     private final @NotNull Set<TestCase> tests = new HashSet<>();
     private final @NotNull FormatOption formatOption;
