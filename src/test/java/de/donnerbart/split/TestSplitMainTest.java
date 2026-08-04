@@ -156,6 +156,22 @@ class TestSplitMainTest {
     }
 
     @Test
+    void calculateOptimalTotalSplit_withImbalancedTestTimes() {
+        jCommander.parse("-i", "0", "-t", "2", "-g", "**/*Test.java", "-j", "**/junit-reports/*.xml");
+
+        // a single test dominates the wall clock time, so more than two splits cannot reduce it further
+        final var testCases = Set.of( //
+                new TestCase("de.donnerbart.example.SlowestTest", 1800),
+                new TestCase("de.donnerbart.example.FastOneTest", 60),
+                new TestCase("de.donnerbart.example.FastTwoTest", 60),
+                new TestCase("de.donnerbart.example.FastThreeTest", 60),
+                new TestCase("de.donnerbart.example.FastFourTest", 60),
+                new TestCase("de.donnerbart.example.FastFiveTest", 60));
+
+        assertThat(TestSplitMain.calculateOptimalTotalSplit(arguments, testCases)).isEqualTo(2);
+    }
+
+    @Test
     void calculateOptimalTotalSplit_withMaxCalculations() throws Exception {
         copyResourceToTarget(projectFolder, "tests/NoTimingOneTest.java", "NoTimingOneTest.java", PERMISSIONS);
         copyResourceToTarget(projectFolder, "tests/NoTimingTwoTest.java", "NoTimingTwoTest.java", PERMISSIONS);
