@@ -140,6 +140,23 @@ class TestLoaderTest {
     }
 
     @Test
+    void load_withJUnit_withMalformedReport() throws Exception {
+        copyResourceToTarget(tmp.resolve("junit-reports"),
+                "reports/TEST-de.donnerbart.example.MalformedTest.xml",
+                "TEST-de.donnerbart.example.NoTimingOneTest.xml",
+                PERMISSIONS);
+
+        final var testCases = loadTests(true, NewTestTimeOption.ZERO);
+        assertThat(testCases).satisfiesExactlyInAnyOrder( //
+                testCase -> assertTestCase(testCase, new TestCase("de.donnerbart.example.FastTest", 2.374d)),
+                testCase -> assertTestCase(testCase, new TestCase("de.donnerbart.example.SlowTest", 12.386d)),
+                testCase -> assertTestCase(testCase, new TestCase("de.donnerbart.example.SlowestTest", 153.457d)),
+                testCase -> assertTestCase(testCase, new TestCase("de.donnerbart.example.NoTimingOneTest", 0d)),
+                testCase -> assertTestCase(testCase, new TestCase("de.donnerbart.example.NoTimingTwoTest", 0d)));
+        assertThat(exitCode).hasNullValue();
+    }
+
+    @Test
     void load_whitespaceClassDefinition() throws Exception {
         final var projectFolder =
                 tmp.resolve("multiline-class-definition-project").resolve("src").resolve("main").resolve("java");

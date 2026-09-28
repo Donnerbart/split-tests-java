@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="de.donnerbart.example.NoTimingOneTest" tests="1" skipped="0" failures="0" errors="0"
+           timestamp="2025-01-01T00:00:00" hostname="example" time="99.999">
+    <properties/>
+    <testcase name="testMethod()"
+              classname="de.donnerbart.example.NoTimingOneTest" time="99.999">
+    <system-out><![CDATA[]]></system-out>
+    <system-err><![CDATA[]]></system-err>
+</testsuite>
+tail of a previous report version
+</testsuite>

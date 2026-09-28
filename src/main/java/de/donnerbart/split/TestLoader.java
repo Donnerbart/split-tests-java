@@ -1,5 +1,6 @@
 package de.donnerbart.split;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -75,7 +76,13 @@ public class TestLoader {
                 var slowestTest = new TestCase("", Double.MIN_VALUE);
                 final var xmlMapper = new XmlMapper();
                 for (final var junitPath : junitPaths) {
-                    final var testSuite = xmlMapper.readValue(junitPath.toFile(), TestSuite.class);
+                    final TestSuite testSuite;
+                    try {
+                        testSuite = xmlMapper.readValue(junitPath.toFile(), TestSuite.class);
+                    } catch (final JacksonException e) {
+                        LOG.warn("Skipping malformed JUnit report {}: {}", junitPath, e.getOriginalMessage());
+                        continue;
+                    }
                     final var testCase = new TestCase(testSuite.getName(), testSuite.getTime());
                     if (classNames.contains(testCase.name())) {
                         if (testCases.add(testCase)) {
